@@ -30,7 +30,7 @@ class AuthPage extends StatelessWidget {
           Align(
             alignment: Alignment.bottomLeft,
             child: Opacity(
-              opacity: 0.8, 
+              opacity: 0.8,
               child: Image.asset(AppImages.authPageImage),
             ),
           ),
@@ -48,7 +48,7 @@ class AuthPage extends StatelessWidget {
                   height: 50,
                 ),
                 const Text(
-                  'Enjoy Listening to Music',
+                  'Create Royalty-Free Music',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -58,7 +58,7 @@ class AuthPage extends StatelessWidget {
                   height: 10,
                 ),
                 const Text(
-                  'Spotify is Pakistani audio streaming and Media Sharing Platfrom',
+                  'MuseAI helps creators and listeners generate original AI tracks instantly from mood and genre preferences.',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -75,12 +75,15 @@ class AuthPage extends StatelessWidget {
                       child: PrimaryAppButton(
                         height: 60,
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> const SignUpPage()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUpPage()));
                         },
                         title: const Text(
-                    'Register',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                          'Register',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -89,7 +92,10 @@ class AuthPage extends StatelessWidget {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> const SignInPage()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignInPage()));
                         },
                         child: Text(
                           'Sign in',

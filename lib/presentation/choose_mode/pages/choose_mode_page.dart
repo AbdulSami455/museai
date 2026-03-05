@@ -9,6 +9,7 @@ import 'package:spotify_clone/presentation/choose_mode/bloc/theme_cubit.dart';
 import '../../../common/widgets/buttons/primary_app_button.dart';
 import '../../../core/configs/assets/app_vectors.dart';
 import '../../auth/pages/auth_page.dart';
+import '../../home/pages/home_page.dart';
 
 class ChooseModePage extends StatelessWidget {
   const ChooseModePage({super.key});
@@ -39,7 +40,7 @@ class ChooseModePage extends StatelessWidget {
                     child: SvgPicture.asset(AppVectors.logo)),
                 const Spacer(),
                 const Text(
-                  'Choose Mode',
+                  'Choose Theme',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -140,7 +141,7 @@ class ChooseModePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AuthPage(),
+                        builder: (context) => const HomePage(),
                       ),
                     );
                   },
@@ -148,7 +149,25 @@ class ChooseModePage extends StatelessWidget {
                     'Continue',
                     style: TextStyle(color: Colors.white),
                   ),
-                )
+                ),
+                const SizedBox(height: 14),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AuthPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Sign in / Register',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

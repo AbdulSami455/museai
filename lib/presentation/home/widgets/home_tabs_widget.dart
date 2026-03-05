@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
 import 'package:spotify_clone/core/configs/themes/app_colors.dart';
+import 'package:spotify_clone/data/source/home/placeholder_podcasts.dart';
+import 'package:spotify_clone/presentation/home/widgets/home_artists_tab_widget.dart';
 import 'package:spotify_clone/presentation/home/widgets/news_songs_widget.dart';
 
 class HomeTabsWidget extends StatefulWidget {
@@ -25,7 +27,7 @@ class _HomeTabsWidgetState extends State<HomeTabsWidget>
     return Column(
       children: [
         TabBar(
-          tabAlignment:TabAlignment.start,
+          tabAlignment: TabAlignment.start,
           indicatorColor: AppColors.primaryColor,
           controller: tabController,
           labelColor: context.isDarkMode ? Colors.white : Colors.black,
@@ -63,17 +65,17 @@ class _HomeTabsWidgetState extends State<HomeTabsWidget>
             ),
           ],
         ),
-        
         SizedBox(
           height: 200,
           child: TabBarView(
             controller: tabController,
-            children: const [
-            NewsSongsWidget(),
-            NewsSongsWidget(),
-            NewsSongsWidget(),
-            NewsSongsWidget(),
-          ]),
+            children: [
+              const NewsSongsWidget(),
+              const NewsSongsWidget(),
+              const HomeArtistsTabWidget(),
+              NewsSongsWidget(songs: PlaceholderPodcasts.items),
+            ],
+          ),
         ),
       ],
     );

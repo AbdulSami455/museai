@@ -34,7 +34,7 @@ class GetStartedPage extends StatelessWidget {
                     child: SvgPicture.asset(AppVectors.logo)),
                 const Spacer(),
                 const Text(
-                  'Enjoy Listening to music',
+                  'Create Music with AI',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class GetStartedPage extends StatelessWidget {
                   height: 10,
                 ),
                 const Text(
-                  'Are you bored of your life and want some relief! Music is a right place to go. Music is food of your soul. Just tap below to open a new world of music!',
+                  'Pick your mood, genre, tempo, and instruments. MuseAI will generate an original track you can play, save, remix, and share.',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,

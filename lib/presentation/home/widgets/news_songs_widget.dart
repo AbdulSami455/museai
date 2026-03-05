@@ -10,10 +10,15 @@ import '../../../domain/entities/song/song_entity.dart';
 import '../../song_player/pages/song_player_page.dart';
 
 class NewsSongsWidget extends StatelessWidget {
-  const NewsSongsWidget({super.key});
+  final List<SongEntity>? songs;
+  const NewsSongsWidget({super.key, this.songs});
 
   @override
   Widget build(BuildContext context) {
+    if (songs != null) {
+      return _songList(context, songs!);
+    }
+
     return SizedBox(
       height: 200,
       child: BlocProvider(
@@ -30,86 +35,91 @@ class NewsSongsWidget extends StatelessWidget {
             );
           }
           if (songState is NewsSongLoaded) {
-            final songs = songState.songs;
-            return ListView.separated(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemCount: songs.length,
-              itemBuilder: (context, index) {
-                SongEntity song = songs[index];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SongPlayerPage(song: song,songsList:songs),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: NetworkImage(song.coverUrl!),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                              height: 30,
-                              width: 30,
-                              transform: Matrix4.translationValues(5, 8, 0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: context.isDarkMode
-                                    ? AppColors.lightBackgroundColor
-                                        .withOpacity(0.8)
-                                    : AppColors.darkBackgroundColor
-                                        .withOpacity(0.8),
-                              ),
-                              child: Icon(
-                                Icons.play_arrow_rounded,
-                                color: !context.isDarkMode
-                                    ? AppColors.lightBackgroundColor
-                                    : AppColors.darkBackgroundColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      song.title!,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      song.artist!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
+            return _songList(context, songState.songs);
           } else {
             return Container();
           }
         }),
+      ),
+    );
+  }
+
+  Widget _songList(BuildContext context, List<SongEntity> songs) {
+    return SizedBox(
+      height: 200,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => const SizedBox(width: 10),
+        itemCount: songs.length,
+        itemBuilder: (context, index) {
+          SongEntity song = songs[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SongPlayerPage(song: song, songsList: songs),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      image: DecorationImage(
+                        image: NetworkImage(song.coverUrl!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        height: 30,
+                        width: 30,
+                        transform: Matrix4.translationValues(5, 8, 0),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: context.isDarkMode
+                              ? AppColors.lightBackgroundColor.withOpacity(0.8)
+                              : AppColors.darkBackgroundColor.withOpacity(0.8),
+                        ),
+                        child: Icon(
+                          Icons.play_arrow_rounded,
+                          color: !context.isDarkMode
+                              ? AppColors.lightBackgroundColor
+                              : AppColors.darkBackgroundColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                song.title!,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                song.artist!,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
