@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:spotify_clone/core/configs/const/firebase_const.dart';
-import 'package:spotify_clone/data/models/songs/song_model.dart';
-import 'package:spotify_clone/data/source/song/placeholder_songs.dart';
-import 'package:spotify_clone/data/source/song/song_firebase_service.dart';
-import 'package:spotify_clone/domain/entities/song/song_entity.dart';
+import 'package:museai/core/configs/const/firebase_const.dart';
+import 'package:museai/data/models/songs/song_model.dart';
+import 'package:museai/data/source/song/placeholder_songs.dart';
+import 'package:museai/data/source/song/song_firebase_service.dart';
+import 'package:museai/domain/entities/song/song_entity.dart';
 
 class SongFirebaseServiceImpl extends SongFirebaseService {
   @override

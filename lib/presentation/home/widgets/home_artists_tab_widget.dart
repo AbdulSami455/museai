@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_clone/data/source/home/placeholder_artists.dart';
+import 'package:museai/data/source/home/placeholder_artists.dart';
 
 class HomeArtistsTabWidget extends StatelessWidget {
   const HomeArtistsTabWidget({super.key});

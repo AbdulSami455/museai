@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:spotify_clone/common/widgets/appbar/app_bar_widget.dart';
+import 'package:museai/common/widgets/appbar/app_bar_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spotify_clone/common/widgets/buttons/primary_app_button.dart';
-import 'package:spotify_clone/core/configs/assets/app_vectors.dart';
-import 'package:spotify_clone/core/configs/themes/app_colors.dart';
-import 'package:spotify_clone/domain/entities/auth/user_entity.dart';
-import 'package:spotify_clone/domain/usecases/auth/signup_usecase.dart';
-import 'package:spotify_clone/presentation/auth/pages/signin_page.dart';
-import 'package:spotify_clone/presentation/auth/widgets/text_field_widget.dart';
-import 'package:spotify_clone/presentation/home/pages/home_page.dart';
-import 'package:spotify_clone/service_locator.dart';
+import 'package:museai/common/widgets/buttons/primary_app_button.dart';
+import 'package:museai/core/configs/assets/app_vectors.dart';
+import 'package:museai/core/configs/themes/app_colors.dart';
+import 'package:museai/domain/entities/auth/user_entity.dart';
+import 'package:museai/domain/usecases/auth/signup_usecase.dart';
+import 'package:museai/presentation/auth/pages/signin_page.dart';
+import 'package:museai/presentation/auth/widgets/text_field_widget.dart';
+import 'package:museai/presentation/home/pages/home_page.dart';
+import 'package:museai/service_locator.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

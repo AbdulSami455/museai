@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
+import 'package:museai/common/helpers/is_dark_mode.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
   final Widget? title;

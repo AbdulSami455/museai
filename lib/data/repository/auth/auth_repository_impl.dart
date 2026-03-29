@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:spotify_clone/data/source/auth/auth_firebase_service.dart';
-import 'package:spotify_clone/domain/entities/auth/user_entity.dart';
-import 'package:spotify_clone/domain/repository/auth/auth_repository.dart';
-import 'package:spotify_clone/service_locator.dart';
+import 'package:museai/data/source/auth/auth_firebase_service.dart';
+import 'package:museai/domain/entities/auth/user_entity.dart';
+import 'package:museai/domain/repository/auth/auth_repository.dart';
+import 'package:museai/service_locator.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   @override

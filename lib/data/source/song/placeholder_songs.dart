@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spotify_clone/domain/entities/song/song_entity.dart';
+import 'package:museai/domain/entities/song/song_entity.dart';
 
 class PlaceholderSongs {
   static List<SongEntity> get items => [

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
-import 'package:spotify_clone/domain/entities/song/song_entity.dart';
-import 'package:spotify_clone/presentation/home/bloc/news_song_cubit.dart';
-import 'package:spotify_clone/presentation/home/bloc/news_song_state.dart';
-import 'package:spotify_clone/presentation/song_player/pages/song_player_page.dart';
+import 'package:museai/common/helpers/is_dark_mode.dart';
+import 'package:museai/domain/entities/song/song_entity.dart';
+import 'package:museai/presentation/home/bloc/news_song_cubit.dart';
+import 'package:museai/presentation/home/bloc/news_song_state.dart';
+import 'package:museai/presentation/song_player/pages/song_player_page.dart';
 
 import '../../../core/configs/themes/app_colors.dart';
 

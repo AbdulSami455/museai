@@ -2,9 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:spotify_clone/core/configs/assets/app_images.dart';
-import 'package:spotify_clone/core/configs/themes/app_colors.dart';
-import 'package:spotify_clone/presentation/choose_mode/bloc/theme_cubit.dart';
+import 'package:museai/core/configs/assets/app_images.dart';
+import 'package:museai/core/configs/themes/app_colors.dart';
+import 'package:museai/presentation/choose_mode/bloc/theme_cubit.dart';
 
 import '../../../common/widgets/buttons/primary_app_button.dart';
 import '../../../core/configs/assets/app_vectors.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
-import 'package:spotify_clone/core/configs/themes/app_colors.dart';
+import 'package:museai/common/helpers/is_dark_mode.dart';
+import 'package:museai/core/configs/themes/app_colors.dart';
 
 class TextFieldWidget extends StatelessWidget {
   final String hintText;
