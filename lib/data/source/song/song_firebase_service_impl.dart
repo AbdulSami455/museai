@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/configs/const/firebase_const.dart';
@@ -11,20 +12,21 @@ class SongFirebaseServiceImpl extends SongFirebaseService {
   @override
   Future<Either<Failure, List<SongEntity>>> getNewsSongs() async {
     try {
-      final songCollection = await FirebaseFirestore.instance
+      final snapshot = await FirebaseFirestore.instance
           .collection(FirebaseConst.songs)
           .orderBy('releaseDate', descending: true)
           .get();
 
-      final songs = songCollection.docs
-          .map((snap) => SongModel.fromSnapshot(snap) as SongEntity)
-          .toList();
+      if (snapshot.docs.isEmpty) {
+        return const Left(SongFailure(message: 'No songs available'));
+      }
 
+      final songs = snapshot.docs.map(SongModel.fromSnapshot).toList();
       return Right(songs);
-    } on SocketException {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    } on HandshakeException {
-      return const Left(NetworkFailure(message: 'Network error'));
+    } on SocketException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on HandshakeException catch (e) {
+      return Left(NetworkFailure(message: e.message));
     } catch (e) {
       return Left(SongFailure(message: e.toString()));
     }

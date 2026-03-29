@@ -24,22 +24,43 @@ class NewsSongsWidget extends StatelessWidget {
       child: BlocProvider(
         create: (context) => NewsSongCubit()..getNewsSongs(),
         child: BlocBuilder<NewsSongCubit, NewsSongState>(
-            builder: (context, songState) {
-          if (songState is NewsSongLoading) {
-            return Container(
-              alignment: Alignment.center,
-              child: LoadingAnimationWidget.staggeredDotsWave(
-                color: AppColors.primaryColor,
-                size: 50,
-              ),
-            );
-          }
-          if (songState is NewsSongLoaded) {
-            return _songList(context, songState.songs);
-          } else {
-            return Container();
-          }
-        }),
+          builder: (context, songState) {
+            if (songState is NewsSongLoading) {
+              return Container(
+                alignment: Alignment.center,
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: AppColors.primaryColor,
+                  size: 50,
+                ),
+              );
+            }
+            if (songState is NewsSongError) {
+              return Container(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      songState.message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () =>
+                          context.read<NewsSongCubit>().getNewsSongs(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (songState is NewsSongLoaded) {
+              return _songList(context, songState.songs);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
