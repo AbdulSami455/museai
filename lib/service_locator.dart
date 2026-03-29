@@ -6,6 +6,7 @@ import 'package:museai/domain/repository/auth/auth_repository.dart';
 import 'package:museai/domain/usecases/auth/signin_usecase.dart';
 import 'package:museai/domain/usecases/auth/signup_usecase.dart';
 import 'package:museai/domain/usecases/song/get_news_song.dart';
+import 'package:museai/presentation/song_player/bloc/song_player_cubit.dart';
 
 import 'data/repository/song/song_repository_impl.dart';
 import 'data/source/song/song_firebase_service.dart';
@@ -43,6 +44,8 @@ Future<void> initializeDependencies() async{
 
   sl.registerSingleton<GetNewsSongUsecase>(
     GetNewsSongUsecase()
-  ); 
+  );
+
+  sl.registerLazySingleton<SongPlayerCubit>(() => SongPlayerCubit());
 
 }
