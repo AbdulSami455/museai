@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
-import 'package:spotify_clone/core/configs/assets/app_images.dart';
+import 'package:museai/common/helpers/is_dark_mode.dart';
+import 'package:museai/core/configs/assets/app_images.dart';
 
 import '../../../core/configs/themes/app_colors.dart';
 

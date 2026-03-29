@@ -1,7 +1,7 @@
 // ignore_for_file: overridden_fields
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spotify_clone/domain/entities/auth/user_entity.dart';
+import 'package:museai/domain/entities/auth/user_entity.dart';
 
 class UserModel extends UserEntity {
   @override

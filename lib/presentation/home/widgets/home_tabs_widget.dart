@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_clone/common/helpers/is_dark_mode.dart';
-import 'package:spotify_clone/core/configs/themes/app_colors.dart';
-import 'package:spotify_clone/data/source/home/placeholder_podcasts.dart';
-import 'package:spotify_clone/presentation/home/widgets/home_artists_tab_widget.dart';
-import 'package:spotify_clone/presentation/home/widgets/news_songs_widget.dart';
+import 'package:museai/common/helpers/is_dark_mode.dart';
+import 'package:museai/core/configs/themes/app_colors.dart';
+import 'package:museai/data/source/home/placeholder_podcasts.dart';
+import 'package:museai/presentation/home/widgets/home_artists_tab_widget.dart';
+import 'package:museai/presentation/home/widgets/news_songs_widget.dart';
 
 class HomeTabsWidget extends StatefulWidget {
   const HomeTabsWidget({super.key});
