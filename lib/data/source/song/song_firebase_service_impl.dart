@@ -1,33 +1,32 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/configs/const/firebase_const.dart';
+import 'package:museai/core/error/failures.dart';
 import 'package:museai/data/models/songs/song_model.dart';
-import 'package:museai/data/source/song/placeholder_songs.dart';
 import 'package:museai/data/source/song/song_firebase_service.dart';
 import 'package:museai/domain/entities/song/song_entity.dart';
 
 class SongFirebaseServiceImpl extends SongFirebaseService {
   @override
-  Future<Either> getNewsSongs() async {
+  Future<Either<Failure, List<SongEntity>>> getNewsSongs() async {
     try {
       final songCollection = await FirebaseFirestore.instance
           .collection(FirebaseConst.songs)
-          .orderBy("releaseDate", descending: true)
+          .orderBy('releaseDate', descending: true)
           .get();
-      List<SongEntity> songsList = [];
 
-      for (var snap in songCollection.docs) {
-        SongEntity song = SongModel.fromSnapshot(snap);
-        songsList.add(song);
-      }
+      final songs = songCollection.docs
+          .map((snap) => SongModel.fromSnapshot(snap) as SongEntity)
+          .toList();
 
-      if (songsList.isEmpty) {
-        return Right(PlaceholderSongs.items);
-      }
-
-      return Right(songsList);
+      return Right(songs);
+    } on SocketException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } on HandshakeException {
+      return const Left(NetworkFailure(message: 'Network error'));
     } catch (e) {
-      return Right(PlaceholderSongs.items);
+      return Left(SongFailure(message: e.toString()));
     }
   }
 }

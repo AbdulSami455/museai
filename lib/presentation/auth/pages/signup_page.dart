@@ -6,6 +6,7 @@ import 'package:museai/common/widgets/buttons/primary_app_button.dart';
 import 'package:museai/core/configs/assets/app_vectors.dart';
 import 'package:museai/core/configs/themes/app_colors.dart';
 import 'package:museai/domain/entities/auth/user_entity.dart';
+import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/usecases/auth/signup_usecase.dart';
 import 'package:museai/presentation/auth/pages/signin_page.dart';
 import 'package:museai/presentation/auth/widgets/text_field_widget.dart';
@@ -107,13 +108,13 @@ class _SignUpPageState extends State<SignUpPage> {
             fullName: _fullNameController.text.trim(),
             email: _emailController.text.trim(),
             password: _passwordController.text.trim()));
-    result.fold((l) {
+    result.fold((Failure l) {
       var snackbar = SnackBar(
-        content: Text(l),
+        content: Text(l.message),
         behavior: SnackBarBehavior.floating,
       );
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    }, (r) {
+    }, (_) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
