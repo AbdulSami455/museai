@@ -8,7 +8,7 @@ class PlaceholderSongs {
           artist: 'Nova Lane',
           duration: 3.34,
           releaseDate: Timestamp.now(),
-          coverUrl: 'https://picsum.photos/seed/spotify-clone-1/500/500',
+          coverUrl: 'https://picsum.photos/seed/museai-1/500/500',
           songUrl:
               'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
         ),
@@ -17,7 +17,7 @@ class PlaceholderSongs {
           artist: 'Aria Vale',
           duration: 4.02,
           releaseDate: Timestamp.now(),
-          coverUrl: 'https://picsum.photos/seed/spotify-clone-2/500/500',
+          coverUrl: 'https://picsum.photos/seed/museai-2/500/500',
           songUrl:
               'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
         ),
@@ -26,7 +26,7 @@ class PlaceholderSongs {
           artist: 'Rey Carter',
           duration: 2.58,
           releaseDate: Timestamp.now(),
-          coverUrl: 'https://picsum.photos/seed/spotify-clone-3/500/500',
+          coverUrl: 'https://picsum.photos/seed/museai-3/500/500',
           songUrl:
               'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
         ),
@@ -35,7 +35,7 @@ class PlaceholderSongs {
           artist: 'Luna Park',
           duration: 3.16,
           releaseDate: Timestamp.now(),
-          coverUrl: 'https://picsum.photos/seed/spotify-clone-4/500/500',
+          coverUrl: 'https://picsum.photos/seed/museai-4/500/500',
           songUrl:
               'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
         ),
@@ -44,7 +44,7 @@ class PlaceholderSongs {
           artist: 'Kai Rivers',
           duration: 3.47,
           releaseDate: Timestamp.now(),
-          coverUrl: 'https://picsum.photos/seed/spotify-clone-5/500/500',
+          coverUrl: 'https://picsum.photos/seed/museai-5/500/500',
           songUrl:
               'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
         ),
