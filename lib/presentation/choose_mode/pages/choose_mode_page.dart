@@ -68,7 +68,7 @@ class ChooseModePage extends StatelessWidget {
                                 height: 70,
                                 width: 70,
                                 decoration: BoxDecoration(
-                                    color: AppColors.grey.withOpacity(0.5),
+                                    color: AppColors.grey.withValues(alpha: 0.5),
                                     shape: BoxShape.circle),
                                 child: SvgPicture.asset(
                                   AppVectors.moonIcon,
@@ -108,7 +108,7 @@ class ChooseModePage extends StatelessWidget {
                                 height: 70,
                                 width: 70,
                                 decoration: BoxDecoration(
-                                    color: AppColors.grey.withOpacity(0.3),
+                                    color: AppColors.grey.withValues(alpha: 0.3),
                                     shape: BoxShape.circle),
                                 child: SvgPicture.asset(
                                   AppVectors.sunIcon,
