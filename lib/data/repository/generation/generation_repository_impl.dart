@@ -1,0 +1,51 @@
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
+import 'package:museai/core/error/failures.dart';
+import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/domain/entities/generation/generation_entity.dart';
+import 'package:museai/domain/repository/generation/generation_repository.dart';
+import 'package:museai/domain/usecases/generation/generation_params.dart';
+
+class GenerationRepositoryImpl implements GenerationRepository {
+  final GenerationFirebaseService _service;
+
+  GenerationRepositoryImpl(this._service);
+
+  @override
+  Future<Either<Failure, String>> createGeneration(
+      GenerationParams params) async {
+    try {
+      final id = await _service.createGeneration(params.uid, params);
+      return Right(id);
+    } catch (e) {
+      return Left(GenerationFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, GenerationEntity>> watchGeneration(
+    String uid,
+    String generationId,
+  ) {
+    return _service.watchGeneration(uid, generationId).transform(
+          StreamTransformer<GenerationEntity,
+              Either<Failure, GenerationEntity>>.fromHandlers(
+            handleData: (entity, sink) => sink.add(Right(entity)),
+            handleError: (e, _, sink) =>
+                sink.add(Left(GenerationFailure(message: e.toString()))),
+          ),
+        );
+  }
+
+  @override
+  Future<Either<Failure, List<GenerationEntity>>> getUserGenerations(
+      String uid) async {
+    try {
+      final list = await _service.getUserGenerations(uid);
+      return Right(list);
+    } catch (e) {
+      return Left(GenerationFailure(message: e.toString()));
+    }
+  }
+}
