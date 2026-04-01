@@ -39,3 +39,11 @@ class NetworkFailure extends Failure {
   @override
   List<Object?> get props => [message];
 }
+
+class GenerationFailure extends Failure {
+  @override
+  final String message;
+  const GenerationFailure({required this.message});
+  @override
+  List<Object?> get props => [message];
+}
