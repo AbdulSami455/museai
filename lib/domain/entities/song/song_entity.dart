@@ -1,24 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:museai/domain/entities/playable.dart';
 
-class SongEntity extends Equatable{
-  final String? title;
-  final String? artist;
+class SongEntity extends Equatable implements Playable {
+  final String? titleNullable;
+  final String? artistNullable;
   final num? duration;
   final Timestamp? releaseDate;
-  final String? coverUrl;
+  final String? _coverUrl;
   final String? songUrl;
 
-  const SongEntity({this.coverUrl, this.songUrl, this.title, this.artist, this.duration, this.releaseDate});
+  const SongEntity({
+    String? title,
+    String? artist,
+    this.duration,
+    this.releaseDate,
+    String? coverUrl,
+    this.songUrl,
+  })  : titleNullable = title,
+        artistNullable = artist,
+        _coverUrl = coverUrl;
+
+  @override
+  String get audioUrl => songUrl!;
+
+  @override
+  String get title => titleNullable!;
+
+  @override
+  String? get artist => artistNullable;
+
+  @override
+  String? get coverUrl => _coverUrl;
 
   @override
   List<Object?> get props => [
-    title,
-    artist,
-    duration,
-    releaseDate,
-    coverUrl,
-    songUrl
-  ];
-  
+        titleNullable,
+        artistNullable,
+        duration,
+        releaseDate,
+        _coverUrl,
+        songUrl,
+      ];
 }
