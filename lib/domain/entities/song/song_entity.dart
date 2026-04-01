@@ -22,10 +22,10 @@ class SongEntity extends Equatable implements Playable {
         _coverUrl = coverUrl;
 
   @override
-  String get audioUrl => songUrl!;
+  String get audioUrl => songUrl ?? '';
 
   @override
-  String get title => titleNullable!;
+  String get title => titleNullable ?? 'Unknown';
 
   @override
   String? get artist => artistNullable;

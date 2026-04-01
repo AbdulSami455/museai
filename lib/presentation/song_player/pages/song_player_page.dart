@@ -134,20 +134,23 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SongPlayerPage(
-                            song: _prevSong(),
-                            songsList: widget.songsList,
+                  if (widget.song is SongEntity && widget.songsList.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SongPlayerPage(
+                              song: _prevSong(),
+                              songsList: widget.songsList,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.skip_previous_rounded, size: 30, color: AppColors.grey),
-                  ),
+                        );
+                      },
+                      child: const Icon(Icons.skip_previous_rounded, size: 30, color: AppColors.grey),
+                    )
+                  else
+                    const SizedBox(width: 30),
                   const SizedBox(width: 15),
                   GestureDetector(
                     onTap: () => sl<SongPlayerCubit>().playOrPauseSong(),
@@ -167,20 +170,23 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                     ),
                   ),
                   const SizedBox(width: 15),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SongPlayerPage(
-                            song: _nextSong(),
-                            songsList: widget.songsList,
+                  if (widget.song is SongEntity && widget.songsList.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SongPlayerPage(
+                              song: _nextSong(),
+                              songsList: widget.songsList,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.skip_next_rounded, size: 30, color: AppColors.grey),
-                  ),
+                        );
+                      },
+                      child: const Icon(Icons.skip_next_rounded, size: 30, color: AppColors.grey),
+                    )
+                  else
+                    const SizedBox(width: 30),
                 ],
               ),
             ],
@@ -201,11 +207,15 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
   }
 
   SongEntity _nextSong() {
+    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
+        '_nextSong() must only be called when song is SongEntity and songsList is non-empty');
     final index = _currentIndex();
     return widget.songsList[(index + 1) % widget.songsList.length];
   }
 
   SongEntity _prevSong() {
+    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
+        '_prevSong() must only be called when song is SongEntity and songsList is non-empty');
     final index = _currentIndex();
     return widget.songsList[(index - 1 + widget.songsList.length) % widget.songsList.length];
   }
