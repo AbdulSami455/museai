@@ -40,12 +40,12 @@ dependencies:
   flutter_bloc:
   hydrated_bloc:
   path_provider:
-  firebase_core:
-  firebase_auth:
+  firebase_core: ^4.6.0
+  firebase_auth: ^6.3.0
   equatable:
   get_it:
   dartz:
-  cloud_firestore:
+  cloud_firestore: ^6.2.0
   loading_animation_widget:
   just_audio:
   audio_session:
@@ -58,8 +58,8 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   bloc_test: ^9.1.0
   mocktail: ^1.0.0
-  fake_cloud_firestore: ^2.4.0
-  firebase_auth_mocks: ^0.13.0
+  fake_cloud_firestore: ^4.1.0
+  firebase_auth_mocks: ^0.15.1
 
 dependency_overrides:
   just_audio_web: ^0.4.16
