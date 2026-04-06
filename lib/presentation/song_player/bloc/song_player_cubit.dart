@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:museai/domain/entities/song/song_entity.dart';
+import 'package:museai/domain/entities/playable.dart';
 import 'package:museai/presentation/song_player/bloc/song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
@@ -25,17 +25,17 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     emit(SongPlayerLoaded());
   }
 
-  Future<void> loadSong(SongEntity song) async {
+  Future<void> loadSong(Playable song) async {
     try {
-      await audioPlayer.setUrl(song.songUrl!);
+      await audioPlayer.setUrl(song.audioUrl);
       audioPlayer.play();
       AudioSource.uri(
-        Uri.parse(song.songUrl!),
+        Uri.parse(song.audioUrl),
         tag: MediaItem(
           id: '1',
           album: song.artist,
-          title: song.title!,
-          artUri: Uri.parse(song.coverUrl!),
+          title: song.title,
+          artUri: song.coverUrl != null ? Uri.parse(song.coverUrl!) : null,
         ),
       );
       emit(SongPlayerLoaded());

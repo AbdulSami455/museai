@@ -4,6 +4,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:museai/common/helpers/is_dark_mode.dart';
 import 'package:museai/common/widgets/appbar/app_bar_widget.dart';
 import 'package:museai/core/configs/themes/app_colors.dart';
+import 'package:museai/domain/entities/playable.dart';
 import 'package:museai/domain/entities/song/song_entity.dart';
 import 'package:museai/presentation/song_player/bloc/song_player_cubit.dart';
 import 'package:museai/presentation/song_player/bloc/song_player_state.dart';
@@ -11,7 +12,7 @@ import 'package:museai/service_locator.dart';
 
 class SongPlayerPage extends StatefulWidget {
   final List<SongEntity> songsList;
-  final SongEntity song;
+  final Playable song;
   const SongPlayerPage({super.key, required this.song, required this.songsList});
 
   @override
@@ -44,10 +45,13 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    image: DecorationImage(
-                      image: NetworkImage(widget.song.coverUrl!),
-                      fit: BoxFit.cover,
-                    ),
+                    color: Colors.grey[900],
+                    image: widget.song.coverUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(widget.song.coverUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -60,7 +64,7 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.song.title!,
+                          widget.song.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
@@ -68,7 +72,7 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          widget.song.artist!,
+                          widget.song.artist ?? '',
                           style: const TextStyle(fontSize: 15),
                         ),
                       ],
@@ -130,20 +134,23 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SongPlayerPage(
-                            song: _prevSong(),
-                            songsList: widget.songsList,
+                  if (widget.song is SongEntity && widget.songsList.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SongPlayerPage(
+                              song: _prevSong(),
+                              songsList: widget.songsList,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.skip_previous_rounded, size: 30, color: AppColors.grey),
-                  ),
+                        );
+                      },
+                      child: const Icon(Icons.skip_previous_rounded, size: 30, color: AppColors.grey),
+                    )
+                  else
+                    const SizedBox(width: 30),
                   const SizedBox(width: 15),
                   GestureDetector(
                     onTap: () => sl<SongPlayerCubit>().playOrPauseSong(),
@@ -163,20 +170,23 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                     ),
                   ),
                   const SizedBox(width: 15),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SongPlayerPage(
-                            song: _nextSong(),
-                            songsList: widget.songsList,
+                  if (widget.song is SongEntity && widget.songsList.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SongPlayerPage(
+                              song: _nextSong(),
+                              songsList: widget.songsList,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.skip_next_rounded, size: 30, color: AppColors.grey),
-                  ),
+                        );
+                      },
+                      child: const Icon(Icons.skip_next_rounded, size: 30, color: AppColors.grey),
+                    )
+                  else
+                    const SizedBox(width: 30),
                 ],
               ),
             ],
@@ -187,14 +197,27 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
     );
   }
 
+  int _currentIndex() {
+    final song = widget.song;
+    if (song is SongEntity) {
+      final i = widget.songsList.indexOf(song);
+      return i < 0 ? 0 : i;
+    }
+    return 0;
+  }
+
   SongEntity _nextSong() {
-    final index = widget.songsList.indexOf(widget.song);
+    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
+        '_nextSong() must only be called when song is SongEntity and songsList is non-empty');
+    final index = _currentIndex();
     return widget.songsList[(index + 1) % widget.songsList.length];
   }
 
   SongEntity _prevSong() {
-    final index = widget.songsList.indexOf(widget.song);
-    return widget.songsList[(index - 1) % widget.songsList.length];
+    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
+        '_prevSong() must only be called when song is SongEntity and songsList is non-empty');
+    final index = _currentIndex();
+    return widget.songsList[(index - 1 + widget.songsList.length) % widget.songsList.length];
   }
 
   String _formatDuration(Duration duration) {
