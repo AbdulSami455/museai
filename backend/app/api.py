@@ -2,6 +2,9 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 
 from app.dependencies import get_current_user
 from app.schemas import (
+    AuthLoginRequest,
+    AuthSignupRequest,
+    AuthTokenResponse,
     GenerationCreateRequest,
     GenerationResponse,
     GenerationUpdateRequest,
@@ -55,6 +58,16 @@ def list_songs() -> list[SongResponse]:
 @router.get("/auth/me", response_model=UserProfileResponse, tags=["auth"])
 def get_me(user: CurrentUser = Depends(get_current_user)) -> UserProfileResponse:
     return user_service().get_me(user)
+
+
+@router.post("/auth/signup", response_model=AuthTokenResponse, tags=["auth"])
+def sign_up(payload: AuthSignupRequest) -> AuthTokenResponse:
+    return user_service().sign_up(payload)
+
+
+@router.post("/auth/login", response_model=AuthTokenResponse, tags=["auth"])
+def sign_in(payload: AuthLoginRequest) -> AuthTokenResponse:
+    return user_service().sign_in(payload)
 
 
 @router.post(

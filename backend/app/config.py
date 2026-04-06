@@ -10,9 +10,11 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     app_base_url: str = "http://127.0.0.1:8000"
 
-    firebase_project_id: str = ""
-    firebase_storage_bucket: str = ""
-    google_application_credentials: Optional[str] = None
+    supabase_url: str = ""
+    supabase_service_role_key: str = ""
+    supabase_anon_key: str = ""
+    supabase_storage_bucket: str = "museai-assets"
+    supabase_password_reset_redirect_to: Optional[str] = None
 
     allow_insecure_dev_tokens: bool = True
     ai_provider_mode: str = "mock"

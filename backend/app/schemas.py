@@ -20,12 +20,31 @@ class ProfileBootstrapRequest(BaseModel):
     full_name: Optional[str] = Field(default=None, max_length=120)
 
 
+class AuthSignupRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=6, max_length=128)
+    full_name: Optional[str] = Field(default=None, max_length=120)
+
+
+class AuthLoginRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=6, max_length=128)
+
+
 class PasswordResetLinkRequest(BaseModel):
     email: str
 
 
 class PasswordResetLinkResponse(BaseModel):
     reset_link: str
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    expires_in: Optional[int] = None
+    token_type: Optional[str] = None
+    user: Optional["UserProfileResponse"] = None
 
 
 class UserProfileResponse(BaseModel):

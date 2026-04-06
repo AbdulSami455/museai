@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
 
+import httpx
 from fastapi import HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.config import get_settings
-from app.firebase import get_auth_module
+from app.supabase import auth_headers
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -35,14 +36,26 @@ def verify_bearer_token(
         return CurrentUser(uid=uid, email=email)
 
     try:
-        auth_module = get_auth_module()
-        decoded = auth_module.verify_id_token(token)
-        return CurrentUser(
-            uid=decoded["uid"],
-            email=decoded.get("email"),
-            name=decoded.get("name"),
+        response = httpx.get(
+            f"{settings.supabase_url.rstrip('/')}/auth/v1/user",
+            headers=auth_headers(token),
+            timeout=10.0,
         )
-    except Exception as exc:  # pragma: no cover - depends on Firebase runtime
+        if response.status_code != status.HTTP_200_OK:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+            )
+        decoded = response.json()
+        metadata = decoded.get("user_metadata") or {}
+        return CurrentUser(
+            uid=decoded["id"],
+            email=decoded.get("email"),
+            name=metadata.get("full_name") or metadata.get("name"),
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - depends on Supabase runtime
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
