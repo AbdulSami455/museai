@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:museai/presentation/home/widgets/home_tabs_widget.dart';
+import 'package:museai/presentation/studio/pages/studio_page.dart';
 
 import '../../../common/widgets/appbar/app_bar_widget.dart';
 import '../../../core/configs/assets/app_vectors.dart';
@@ -20,6 +21,15 @@ class HomePage extends StatelessWidget {
           height: 40,
           width: 40,
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const StudioPage()),
+        ),
+        backgroundColor: Colors.deepPurpleAccent,
+        icon: const Icon(Icons.music_note, color: Colors.white),
+        label: const Text('Create', style: TextStyle(color: Colors.white)),
       ),
       body:const Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
