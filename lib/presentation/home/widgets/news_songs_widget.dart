@@ -107,8 +107,8 @@ class NewsSongsWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: context.isDarkMode
-                              ? AppColors.lightBackgroundColor.withOpacity(0.8)
-                              : AppColors.darkBackgroundColor.withOpacity(0.8),
+                              ? AppColors.lightBackgroundColor.withValues(alpha: 0.8)
+                              : AppColors.darkBackgroundColor.withValues(alpha: 0.8),
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,

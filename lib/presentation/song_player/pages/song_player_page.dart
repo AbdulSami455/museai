@@ -76,8 +76,8 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                     Icon(
                       Icons.favorite_border_rounded,
                       color: context.isDarkMode
-                          ? AppColors.lightBackgroundColor.withOpacity(0.5)
-                          : AppColors.darkBackgroundColor.withOpacity(0.5),
+                          ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
+                          : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
                     ),
                   ],
                 ),

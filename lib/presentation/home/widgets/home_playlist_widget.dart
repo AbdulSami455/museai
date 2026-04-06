@@ -50,8 +50,8 @@ class HomePlaylistWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: context.isDarkMode
-                              ? AppColors.lightBackgroundColor.withOpacity(0.5)
-                              : AppColors.darkBackgroundColor.withOpacity(0.5),
+                              ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
+                              : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,
@@ -92,8 +92,8 @@ class HomePlaylistWidget extends StatelessWidget {
                       Icon(
                         Icons.favorite_rounded,
                         color: context.isDarkMode
-                            ? AppColors.lightBackgroundColor.withOpacity(0.5)
-                            : AppColors.darkBackgroundColor.withOpacity(0.5),
+                            ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
+                            : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
                       ),
                     ],
                   ),

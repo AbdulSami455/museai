@@ -22,8 +22,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
           width: 50,
           decoration: BoxDecoration(
             color: context.isDarkMode
-                ? Colors.white.withOpacity(0.06)
-                : Colors.black.withOpacity(0.04),
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.04),
             shape: BoxShape.circle,
           ),
           child: Icon(
