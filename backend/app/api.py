@@ -1,6 +1,7 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 
 from app.dependencies import get_current_user
+from app.rate_limit import enforce_auth_rate_limit
 from app.schemas import (
     AuthLoginRequest,
     AuthSignupRequest,
@@ -61,12 +62,14 @@ def get_me(user: CurrentUser = Depends(get_current_user)) -> UserProfileResponse
 
 
 @router.post("/auth/signup", response_model=AuthTokenResponse, tags=["auth"])
-def sign_up(payload: AuthSignupRequest) -> AuthTokenResponse:
+def sign_up(request: Request, payload: AuthSignupRequest) -> AuthTokenResponse:
+    enforce_auth_rate_limit(request)
     return user_service().sign_up(payload)
 
 
 @router.post("/auth/login", response_model=AuthTokenResponse, tags=["auth"])
-def sign_in(payload: AuthLoginRequest) -> AuthTokenResponse:
+def sign_in(request: Request, payload: AuthLoginRequest) -> AuthTokenResponse:
+    enforce_auth_rate_limit(request)
     return user_service().sign_in(payload)
 
 
@@ -88,8 +91,10 @@ def bootstrap_profile(
     tags=["auth"],
 )
 def create_password_reset_link(
+    request: Request,
     payload: PasswordResetLinkRequest,
 ) -> PasswordResetLinkResponse:
+    enforce_auth_rate_limit(request)
     return user_service().generate_password_reset_link(payload)
 
 

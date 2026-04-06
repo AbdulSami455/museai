@@ -20,7 +20,7 @@ from app.schemas import (
 )
 from app.security import CurrentUser
 from app.services.firestore_utils import clean_none, utcnow
-from app.services.storage import delete_file, upload_bytes
+from app.services.storage import create_signed_url, delete_file, upload_bytes
 from app.supabase import require_supabase_client
 
 
@@ -262,6 +262,20 @@ class GenerationService:
         return rows[0]
 
     def _to_generation(self, data: dict) -> GenerationResponse:
+        audio_url = data.get("audio_url")
+        cover_url = data.get("cover_url")
+        audio_storage_path = data.get("audio_storage_path")
+        cover_storage_path = data.get("cover_storage_path")
+
+        try:
+            if audio_storage_path:
+                audio_url = create_signed_url(audio_storage_path)
+            if cover_storage_path:
+                cover_url = create_signed_url(cover_storage_path)
+        except Exception:
+            # Fall back to the stored URL if the signer is temporarily unavailable.
+            pass
+
         return GenerationResponse(
             id=data["id"],
             uid=data["uid"],
@@ -273,8 +287,8 @@ class GenerationService:
             instruments=list(data.get("instruments", [])),
             duration_seconds=data.get("duration_seconds"),
             status=GenerationStatus(data["status"]),
-            audio_url=data.get("audio_url"),
-            cover_url=data.get("cover_url"),
+            audio_url=audio_url,
+            cover_url=cover_url,
             created_at=self._as_datetime(data.get("created_at")),
             updated_at=self._as_datetime(data.get("updated_at")),
             error_message=data.get("error_message"),

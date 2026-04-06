@@ -9,14 +9,16 @@ class Settings(BaseSettings):
     project_name: str = "MuseAI Backend"
     api_prefix: str = "/api/v1"
     app_base_url: str = "http://127.0.0.1:8000"
+    cors_allowed_origins: str = ""
 
     supabase_url: str = ""
     supabase_service_role_key: str = ""
     supabase_anon_key: str = ""
     supabase_storage_bucket: str = "museai-assets"
     supabase_password_reset_redirect_to: Optional[str] = None
+    signed_asset_url_ttl_seconds: int = 3600
 
-    allow_insecure_dev_tokens: bool = True
+    allow_insecure_dev_tokens: bool = False
     ai_provider_mode: str = "mock"
     ai_generation_delay_seconds: int = 3
     default_track_duration_seconds: int = 30
@@ -36,6 +38,10 @@ class Settings(BaseSettings):
     @property
     def local_storage_path(self) -> Path:
         return self.backend_root / self.local_storage_dir
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 @lru_cache

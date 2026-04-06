@@ -12,6 +12,26 @@ def _local_file_url(relative_path: str) -> str:
     return f"{settings.app_base_url.rstrip('/')}/assets/{relative_path}"
 
 
+def create_signed_url(relative_path: str) -> str:
+    settings = get_settings()
+    if not settings.supabase_url or not settings.supabase_service_role_key:
+        return _local_file_url(relative_path)
+
+    bucket = settings.supabase_storage_bucket
+    signed_url_response = httpx.post(
+        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/sign/{bucket}/{relative_path}",
+        headers=service_headers(),
+        json={"expiresIn": settings.signed_asset_url_ttl_seconds},
+        timeout=30.0,
+    )
+    signed_url_response.raise_for_status()
+    payload = signed_url_response.json()
+    signed_url = payload.get("signedURL") or payload.get("signedUrl")
+    if not signed_url:
+        raise RuntimeError("Supabase did not return a signed URL")
+    return f"{settings.supabase_url.rstrip('/')}/storage/v1{signed_url}"
+
+
 def upload_bytes(relative_path: str, data: bytes, content_type: str) -> str:
     settings = get_settings()
     if not settings.supabase_url or not settings.supabase_service_role_key:
@@ -31,19 +51,7 @@ def upload_bytes(relative_path: str, data: bytes, content_type: str) -> str:
         timeout=30.0,
     )
     upload_response.raise_for_status()
-
-    signed_url_response = httpx.post(
-        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/sign/{bucket}/{relative_path}",
-        headers=service_headers(),
-        json={"expiresIn": 60 * 60 * 24 * 3650},
-        timeout=30.0,
-    )
-    signed_url_response.raise_for_status()
-    payload = signed_url_response.json()
-    signed_url = payload.get("signedURL") or payload.get("signedUrl")
-    if not signed_url:
-        raise RuntimeError("Supabase did not return a signed URL")
-    return f"{settings.supabase_url.rstrip('/')}/storage/v1{signed_url}"
+    return create_signed_url(relative_path)
 
 
 def delete_file(relative_path: Optional[str]) -> None:

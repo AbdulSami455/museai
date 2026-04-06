@@ -61,3 +61,95 @@ create table if not exists public.playlists (
 
 create index if not exists playlists_uid_created_at_idx
   on public.playlists (uid, created_at desc);
+
+alter table public.users enable row level security;
+alter table public.songs enable row level security;
+alter table public.generations enable row level security;
+alter table public.playlists enable row level security;
+
+drop policy if exists "users_select_own" on public.users;
+create policy "users_select_own"
+  on public.users
+  for select
+  to authenticated
+  using (auth.uid()::text = id);
+
+drop policy if exists "users_insert_own" on public.users;
+create policy "users_insert_own"
+  on public.users
+  for insert
+  to authenticated
+  with check (auth.uid()::text = id);
+
+drop policy if exists "users_update_own" on public.users;
+create policy "users_update_own"
+  on public.users
+  for update
+  to authenticated
+  using (auth.uid()::text = id)
+  with check (auth.uid()::text = id);
+
+drop policy if exists "songs_select_authenticated" on public.songs;
+create policy "songs_select_authenticated"
+  on public.songs
+  for select
+  to authenticated
+  using (true);
+
+drop policy if exists "generations_select_own_or_public" on public.generations;
+create policy "generations_select_own_or_public"
+  on public.generations
+  for select
+  to authenticated
+  using (auth.uid()::text = uid or is_public = true);
+
+drop policy if exists "generations_insert_own" on public.generations;
+create policy "generations_insert_own"
+  on public.generations
+  for insert
+  to authenticated
+  with check (auth.uid()::text = uid);
+
+drop policy if exists "generations_update_own" on public.generations;
+create policy "generations_update_own"
+  on public.generations
+  for update
+  to authenticated
+  using (auth.uid()::text = uid)
+  with check (auth.uid()::text = uid);
+
+drop policy if exists "generations_delete_own" on public.generations;
+create policy "generations_delete_own"
+  on public.generations
+  for delete
+  to authenticated
+  using (auth.uid()::text = uid);
+
+drop policy if exists "playlists_select_own" on public.playlists;
+create policy "playlists_select_own"
+  on public.playlists
+  for select
+  to authenticated
+  using (auth.uid()::text = uid);
+
+drop policy if exists "playlists_insert_own" on public.playlists;
+create policy "playlists_insert_own"
+  on public.playlists
+  for insert
+  to authenticated
+  with check (auth.uid()::text = uid);
+
+drop policy if exists "playlists_update_own" on public.playlists;
+create policy "playlists_update_own"
+  on public.playlists
+  for update
+  to authenticated
+  using (auth.uid()::text = uid)
+  with check (auth.uid()::text = uid);
+
+drop policy if exists "playlists_delete_own" on public.playlists;
+create policy "playlists_delete_own"
+  on public.playlists
+  for delete
+  to authenticated
+  using (auth.uid()::text = uid);
