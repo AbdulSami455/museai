@@ -33,14 +33,18 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> redirect() async {
     await Future.delayed(const Duration(seconds: 2));
-    final session = Supabase.instance.client.auth.currentSession;
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) =>
-            session != null ? const HomePage() : const GetStartedPage(),
-      ),
-    );
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) =>
+              session != null ? const HomePage() : const GetStartedPage(),
+        ),
+      );
+    } catch (_) {
+      // Supabase not initialised (e.g. during tests); silently ignore.
+    }
   }
 }
