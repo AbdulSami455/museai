@@ -1,73 +1,88 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:museai/core/configs/const/firebase_const.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:museai/core/error/failures.dart';
-import 'package:museai/data/models/auth/user_model.dart';
 import 'package:museai/data/source/auth/auth_firebase_service.dart';
 import 'package:museai/domain/entities/auth/user_entity.dart';
 
 class AuthFirebaseServiceImpl extends AuthFirebaseService {
+  final SupabaseClient _client;
+
+  AuthFirebaseServiceImpl({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
+
   @override
   Future<Either<Failure, void>> signIn(UserEntity user) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: user.email!, password: user.password!);
+      await _client.auth.signInWithPassword(
+        email: user.email!,
+        password: user.password!,
+      );
       return const Right(null);
-    } on FirebaseAuthException catch (e) {
-      return Left(_mapSignInError(e));
+    } on AuthException catch (e) {
+      return Left(_mapAuthError(e));
+    } catch (e) {
+      return Left(AuthFailure(
+        code: AuthErrorCode.unknown,
+        message: e.toString(),
+      ));
     }
   }
 
   @override
   Future<Either<Failure, void>> signup(UserEntity user) async {
     try {
-      final data = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await _client.auth.signUp(
         email: user.email!,
         password: user.password!,
+        data: {'full_name': user.fullName},
       );
-      final userData = UserModel(email: user.email, fullName: user.fullName).toJson();
-      await FirebaseFirestore.instance
-          .collection(FirebaseConst.users)
-          .doc(data.user?.uid)
-          .set(userData);
       return const Right(null);
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       return Left(_mapSignUpError(e));
+    } catch (e) {
+      return Left(AuthFailure(
+        code: AuthErrorCode.unknown,
+        message: e.toString(),
+      ));
     }
   }
 
-  AuthFailure _mapSignInError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return const AuthFailure(
-            code: AuthErrorCode.invalidEmail,
-            message: 'The email address is badly formatted');
-      case 'invalid-credential':
-        return const AuthFailure(
-            code: AuthErrorCode.invalidCredential,
-            message: 'Wrong password provided');
-      default:
-        return AuthFailure(
-            code: AuthErrorCode.unknown,
-            message: e.message ?? 'Unknown error');
+  AuthFailure _mapAuthError(AuthException e) {
+    final msg = e.message.toLowerCase();
+    if (msg.contains('invalid') ||
+        msg.contains('credentials') ||
+        msg.contains('password')) {
+      return const AuthFailure(
+        code: AuthErrorCode.invalidCredential,
+        message: 'Invalid email or password',
+      );
     }
+    if (msg.contains('email')) {
+      return const AuthFailure(
+        code: AuthErrorCode.invalidEmail,
+        message: 'The email address is badly formatted',
+      );
+    }
+    return AuthFailure(code: AuthErrorCode.unknown, message: e.message);
   }
 
-  AuthFailure _mapSignUpError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'weak-password':
-        return const AuthFailure(
-            code: AuthErrorCode.weakPassword,
-            message: 'The password provided is too weak');
-      case 'email-already-in-use':
-        return const AuthFailure(
-            code: AuthErrorCode.emailAlreadyInUse,
-            message: 'An account already exists with that email');
-      default:
-        return AuthFailure(
-            code: AuthErrorCode.unknown,
-            message: e.message ?? 'Unknown error');
+  AuthFailure _mapSignUpError(AuthException e) {
+    final msg = e.message.toLowerCase();
+    if (msg.contains('already registered') ||
+        msg.contains('already exists') ||
+        msg.contains('duplicate')) {
+      return const AuthFailure(
+        code: AuthErrorCode.emailAlreadyInUse,
+        message: 'An account already exists with that email',
+      );
     }
+    if (msg.contains('password') && msg.contains('weak') ||
+        msg.contains('characters')) {
+      return const AuthFailure(
+        code: AuthErrorCode.weakPassword,
+        message: 'The password provided is too weak',
+      );
+    }
+    return AuthFailure(code: AuthErrorCode.unknown, message: e.message);
   }
 }
