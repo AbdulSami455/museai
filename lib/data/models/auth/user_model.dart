@@ -1,6 +1,5 @@
 // ignore_for_file: overridden_fields
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:museai/domain/entities/auth/user_entity.dart';
 
 class UserModel extends UserEntity {
@@ -14,19 +13,18 @@ class UserModel extends UserEntity {
   const UserModel({this.uid, this.fullName, this.email})
       : super(email: email, uid: uid, fullName: fullName);
 
-  Map<String,dynamic> toJson(){
+  Map<String, dynamic> toJson() {
     return {
-      'fullName':fullName,
-      'email':email
+      'full_name': fullName,
+      'email': email,
     };
   }
 
-  factory UserModel.fromSnapshot(DocumentSnapshot snap){
-    var snapshot = snap.data() as Map<String, dynamic>;
+  factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      uid: snapshot['uid'],
-      fullName: snapshot['fullName'],
-      email: snapshot['email']
+      uid: map['id'] as String?,
+      fullName: map['full_name'] as String?,
+      email: map['email'] as String?,
     );
   }
 }
