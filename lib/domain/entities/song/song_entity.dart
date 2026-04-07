@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:museai/domain/entities/playable.dart';
 
@@ -6,7 +5,7 @@ class SongEntity extends Equatable implements Playable {
   final String? titleNullable;
   final String? artistNullable;
   final num? duration;
-  final Timestamp? releaseDate;
+  final DateTime? releaseDate;
   final String? _coverUrl;
   final String? songUrl;
 
