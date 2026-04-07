@@ -1,70 +1,100 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:museai/core/configs/const/firebase_const.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:museai/data/models/generation/generation_model.dart';
 import 'package:museai/data/source/generation/generation_firebase_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
 class GenerationStubService implements GenerationFirebaseService {
-  final FirebaseFirestore _firestore;
+  final SupabaseClient _client;
 
-  GenerationStubService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  GenerationStubService({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   @override
   Future<String> createGeneration(String uid, GenerationParams params) async {
-    final docRef = _firestore
-        .collection(FirebaseConst.generations)
-        .doc(uid)
-        .collection(FirebaseConst.tracks)
-        .doc();
+    final response = await _client.from('generations').insert({
+      'uid': uid,
+      'prompt': params.prompt,
+      'mood': params.mood,
+      'genre': params.genre,
+      'bpm': params.bpm,
+      'status': 'processing',
+      'created_at': DateTime.now().toIso8601String(),
+    }).select('id').single();
 
-    final model = GenerationModel(
-      id: docRef.id,
-      uid: uid,
-      prompt: params.prompt,
-      mood: params.mood,
-      genre: params.genre,
-      bpm: params.bpm,
-      status: GenerationStatus.processing,
-      createdAt: DateTime.now(),
-    );
-
-    await docRef.set(model.toMap());
+    final id = response['id'] as String;
 
     // Simulate backend completing after 3 seconds
     Future.delayed(const Duration(seconds: 3), () async {
-      await docRef.update({
+      await _client.from('generations').update({
         'status': 'completed',
-        'audioUrl': 'https://example.com/stub-audio.mp3',
-        'coverUrl': 'https://example.com/stub-cover.jpg',
-      });
+        'audio_url':
+            'https://fatxsbalyeebltrzzape.supabase.co/storage/v1/object/public/museai-assets/stub-audio.mp3',
+        'cover_url':
+            'https://fatxsbalyeebltrzzape.supabase.co/storage/v1/object/public/museai-assets/stub-cover.jpg',
+      }).eq('id', id);
     });
 
-    return docRef.id;
+    return id;
   }
 
   @override
   Stream<GenerationEntity> watchGeneration(String uid, String generationId) {
-    return _firestore
-        .collection(FirebaseConst.generations)
-        .doc(uid)
-        .collection(FirebaseConst.tracks)
-        .doc(generationId)
-        .snapshots()
-        .map(GenerationModel.fromFirestore);
+    final controller = StreamController<GenerationEntity>();
+
+    // Initial fetch
+    _client
+        .from('generations')
+        .select()
+        .eq('id', generationId)
+        .single()
+        .then((data) {
+      if (!controller.isClosed) {
+        controller.add(GenerationModel.fromMap(data));
+      }
+    });
+
+    // Realtime subscription
+    final channel = _client
+        .channel('generation-$generationId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'generations',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: generationId,
+          ),
+          callback: (payload) {
+            if (!controller.isClosed) {
+              controller.add(
+                GenerationModel.fromMap(payload.newRecord),
+              );
+            }
+          },
+        )
+        .subscribe();
+
+    controller.onCancel = () {
+      _client.removeChannel(channel);
+      controller.close();
+    };
+
+    return controller.stream;
   }
 
   @override
   Future<List<GenerationEntity>> getUserGenerations(String uid) async {
-    final snapshot = await _firestore
-        .collection(FirebaseConst.generations)
-        .doc(uid)
-        .collection(FirebaseConst.tracks)
-        .orderBy('createdAt', descending: true)
-        .get();
+    final response = await _client
+        .from('generations')
+        .select()
+        .eq('uid', uid)
+        .order('created_at', ascending: false);
 
-    return snapshot.docs.map(GenerationModel.fromFirestore).toList();
+    return (response as List)
+        .map((row) => GenerationModel.fromMap(row as Map<String, dynamic>))
+        .toList();
   }
 }
