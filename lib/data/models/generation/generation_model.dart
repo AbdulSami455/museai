@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 
 class GenerationModel extends GenerationEntity {
@@ -16,20 +15,19 @@ class GenerationModel extends GenerationEntity {
     super.errorMessage,
   });
 
-  factory GenerationModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory GenerationModel.fromMap(Map<String, dynamic> map) {
     return GenerationModel(
-      id: doc.id,
-      uid: data['uid'] as String,
-      prompt: data['prompt'] as String,
-      mood: data['mood'] as String,
-      genre: data['genre'] as String,
-      bpm: data['bpm'] as int,
-      status: _parseStatus(data['status'] as String?),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      audioUrl: data['audioUrl'] as String?,
-      coverUrl: data['coverUrl'] as String?,
-      errorMessage: data['errorMessage'] as String?,
+      id: map['id'] as String,
+      uid: map['uid'] as String,
+      prompt: map['prompt'] as String,
+      mood: map['mood'] as String,
+      genre: map['genre'] as String,
+      bpm: map['bpm'] as int,
+      status: _parseStatus(map['status'] as String?),
+      createdAt: DateTime.parse(map['created_at'] as String),
+      audioUrl: map['audio_url'] as String?,
+      coverUrl: map['cover_url'] as String?,
+      errorMessage: map['error_message'] as String?,
     );
   }
 
@@ -41,10 +39,10 @@ class GenerationModel extends GenerationEntity {
       'genre': genre,
       'bpm': bpm,
       'status': status.name,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'audioUrl': audioUrlNullable,
-      'coverUrl': coverUrl,
-      'errorMessage': errorMessage,
+      'created_at': createdAt.toIso8601String(),
+      'audio_url': audioUrlNullable,
+      'cover_url': coverUrl,
+      'error_message': errorMessage,
     };
   }
 
