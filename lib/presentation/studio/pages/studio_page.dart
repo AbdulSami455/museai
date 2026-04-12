@@ -207,9 +207,39 @@ class _FormView extends StatelessWidget {
   );
 }
 
-class _CompletedView extends StatelessWidget {
+class _CompletedView extends StatefulWidget {
   final dynamic generation; // GenerationEntity
   const _CompletedView({required this.generation});
+
+  @override
+  State<_CompletedView> createState() => _CompletedViewState();
+}
+
+class _CompletedViewState extends State<_CompletedView>
+    with SingleTickerProviderStateMixin {
+  // Animation 6: ScaleTransition — check icon scales in when generation completes.
+  late final AnimationController _scaleController;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _scaleAnimation = CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.elasticOut,
+    );
+    _scaleController.forward();
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,10 +249,14 @@ class _CompletedView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline, color: Colors.greenAccent, size: 80),
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: const Icon(Icons.check_circle_outline,
+                  color: Colors.greenAccent, size: 80),
+            ),
             const SizedBox(height: 24),
             Text(
-              generation.title as String,
+              widget.generation.title as String,
               style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),

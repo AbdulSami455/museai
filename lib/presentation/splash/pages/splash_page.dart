@@ -14,9 +14,16 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  // Animation 1: AnimatedOpacity — logo fades in on splash screen load.
+  double _logoOpacity = 0.0;
+
   @override
   void initState() {
     super.initState();
+    // Trigger fade-in shortly after first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _logoOpacity = 1.0);
+    });
     redirect();
   }
 
@@ -24,8 +31,13 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: SvgPicture.asset(
-          AppVectors.logo,
+        child: AnimatedOpacity(
+          opacity: _logoOpacity,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeIn,
+          child: SvgPicture.asset(
+            AppVectors.logo,
+          ),
         ),
       ),
     );
