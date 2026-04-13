@@ -26,9 +26,7 @@ class GetStartedPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 Align(
                     alignment: Alignment.topCenter,
                     child: SvgPicture.asset(AppVectors.logo)),
@@ -41,9 +39,7 @@ class GetStartedPage extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 const Text(
                   'Pick your mood, genre, tempo, and instruments. MuseAI will generate an original track you can play, save, remix, and share.',
                   style: TextStyle(
@@ -53,15 +49,29 @@ class GetStartedPage extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 PrimaryAppButton(
                   onPressed: () {
+                    // Animation 3: SlideTransition — ChooseModePage slides up from the bottom.
                     Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ChooseModePage()));
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const ChooseModePage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          final tween = Tween(
+                            begin: const Offset(0.0, 1.0),
+                            end: Offset.zero,
+                          ).chain(CurveTween(curve: Curves.easeInOut));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 500),
+                      ),
+                    );
                   },
                   title: const Text(
                     'Get Started',

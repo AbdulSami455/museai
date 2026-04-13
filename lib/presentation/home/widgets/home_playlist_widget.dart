@@ -67,7 +67,7 @@ class HomePlaylistWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            song.title!,
+                            song.title,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,

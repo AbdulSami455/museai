@@ -19,11 +19,33 @@ class SongPlayerPage extends StatefulWidget {
   State<SongPlayerPage> createState() => _SongPlayerPageState();
 }
 
-class _SongPlayerPageState extends State<SongPlayerPage> {
+class _SongPlayerPageState extends State<SongPlayerPage>
+    with SingleTickerProviderStateMixin {
+  // Animation 4: RotationTransition — play button rotates continuously while playing.
+  late final AnimationController _rotationController;
+
   @override
   void initState() {
     super.initState();
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    );
     sl<SongPlayerCubit>().loadSong(widget.song);
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose();
+    super.dispose();
+  }
+
+  void _syncRotation(bool isPlaying) {
+    if (isPlaying) {
+      _rotationController.repeat();
+    } else {
+      _rotationController.stop();
+    }
   }
 
   @override
@@ -48,6 +70,8 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                     color: Colors.grey[900],
                     image: widget.song.coverUrl != null
                         ? DecorationImage(
+                            // Animation 5: Hero tag applied in NewsSongsWidget;
+                            // the container here is the destination.
                             image: NetworkImage(widget.song.coverUrl!),
                             fit: BoxFit.cover,
                           )
@@ -110,6 +134,9 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
           return const SizedBox.shrink();
         }
         if (songState is SongPlayerLoaded) {
+          final isPlaying = sl<SongPlayerCubit>().audioPlayer.playing;
+          _syncRotation(isPlaying);
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -147,25 +174,34 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                           ),
                         );
                       },
-                      child: const Icon(Icons.skip_previous_rounded, size: 30, color: AppColors.grey),
+                      child: const Icon(Icons.skip_previous_rounded,
+                          size: 30, color: AppColors.grey),
                     )
                   else
                     const SizedBox(width: 30),
                   const SizedBox(width: 15),
                   GestureDetector(
-                    onTap: () => sl<SongPlayerCubit>().playOrPauseSong(),
-                    child: Container(
-                      height: 60,
-                      width: 60,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.primaryColor,
-                      ),
-                      child: Icon(
-                        sl<SongPlayerCubit>().audioPlayer.playing
-                            ? Icons.pause_sharp
-                            : Icons.play_arrow_rounded,
-                        size: 30,
+                    onTap: () {
+                      sl<SongPlayerCubit>().playOrPauseSong();
+                      // Trigger rebuild so rotation syncs immediately.
+                      setState(() {});
+                    },
+                    child: RotationTransition(
+                      // Animation 4: play button icon rotates while song plays.
+                      turns: _rotationController,
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primaryColor,
+                        ),
+                        child: Icon(
+                          isPlaying
+                              ? Icons.pause_sharp
+                              : Icons.play_arrow_rounded,
+                          size: 30,
+                        ),
                       ),
                     ),
                   ),
@@ -183,7 +219,8 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                           ),
                         );
                       },
-                      child: const Icon(Icons.skip_next_rounded, size: 30, color: AppColors.grey),
+                      child: const Icon(Icons.skip_next_rounded,
+                          size: 30, color: AppColors.grey),
                     )
                   else
                     const SizedBox(width: 30),

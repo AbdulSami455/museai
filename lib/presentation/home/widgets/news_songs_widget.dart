@@ -74,7 +74,10 @@ class NewsSongsWidget extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 10),
         itemCount: songs.length,
         itemBuilder: (context, index) {
-          SongEntity song = songs[index];
+          final song = songs[index];
+          // Animation 5: Hero tag on the cover image — shared-element transition
+          // from the song list card to the full-screen player cover container.
+          final heroTag = 'song-cover-${song.title}';
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -89,43 +92,46 @@ class NewsSongsWidget extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Container(
-                    width: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        image: NetworkImage(song.coverUrl!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        height: 30,
-                        width: 30,
-                        transform: Matrix4.translationValues(5, 8, 0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: context.isDarkMode
-                              ? AppColors.lightBackgroundColor.withValues(alpha: 0.8)
-                              : AppColors.darkBackgroundColor.withValues(alpha: 0.8),
+                  child: Hero(
+                    tag: heroTag,
+                    child: Container(
+                      width: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        image: DecorationImage(
+                          image: NetworkImage(song.coverUrl ?? ''),
+                          fit: BoxFit.cover,
                         ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: !context.isDarkMode
-                              ? AppColors.lightBackgroundColor
-                              : AppColors.darkBackgroundColor,
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          transform: Matrix4.translationValues(5, 8, 0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.isDarkMode
+                                ? AppColors.lightBackgroundColor
+                                    .withValues(alpha: 0.8)
+                                : AppColors.darkBackgroundColor
+                                    .withValues(alpha: 0.8),
+                          ),
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: !context.isDarkMode
+                                ? AppColors.lightBackgroundColor
+                                : AppColors.darkBackgroundColor,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Text(
-                song.title!,
+                song.title,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
