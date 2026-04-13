@@ -1,118 +1,126 @@
 # MuseAI — Production Milestone Plan
 
 > **Purpose:** A phased roadmap from current scaffolding to a production-grade, publicly releasable application.
-> **Date:** 2026-03-29
-> **Current state:** Core app structure, email/password auth, song catalogue playback, and placeholder data. No AI generation, no playlists, no social features.
+> **Updated:** 2026-04-13
+> **Current state:** Core app structure, Supabase auth, song catalogue playback, full generation domain layer (Flutter), Supabase migration complete on the Flutter side. Backend Supabase Edge Function and E2E test pending.
 
 ---
 
 ## How to Read This Document
 
-Each milestone has a **goal** (what done looks like), a list of **tasks** split by who owns them (Flutter team vs. Backend), and **exit criteria** — the specific, verifiable conditions that must be true before moving to the next milestone. Do not advance until all exit criteria pass.
-
-Backend note:
-
-- The backend architecture is now **FastAPI + Firebase Admin + Firestore + Storage**, not Firebase Cloud Functions.
-- Wherever older tasks mention "Cloud Function", interpret that as the FastAPI generation pipeline or background job unless explicitly noted otherwise.
+Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Backend) with their GitHub issue numbers, and **exit criteria**. Tasks link to issues — use the issue number to find the PR that closes it. Do not advance until all exit criteria pass.
 
 ---
 
-## Milestone 0 — Codebase Health (1 week)
+## Milestone 0 — Codebase Health ✅ (Flutter complete)
 
 **Goal:** Fix foundational issues that will compound in cost if left until later. No new features — only stabilisation.
 
-### Flutter team tasks
+### Flutter tasks
 
-- [X] Rename Dart package from `spotify_clone` to `museai` in `pubspec.yaml` and all import paths
-- [X] Switch use cases and repository implementations from service-locator internal pulls (`sl<>` inside methods) to constructor injection
-- [X] Replace `Either<String, dynamic>` with typed `Failure` classes (`AuthFailure`, `NetworkFailure`)
-- [X] Add `FirebaseAuth.instance.currentUser` check in `SplashPage` to route returning users directly to home
-- [X] Register `SongPlayerCubit` in `service_locator.dart` as a lazy singleton
-- [X] Remove silent placeholder fallback from `SongFirebaseServiceImpl` — surface real errors as `Left` values
-- [X] Update `MaterialApp` title and all user-visible strings from "Spotify Clone" to "MuseAI"
+- [x] #11 Rename Dart package from `spotify_clone` to `museai`
+- [x] #12 Switch to constructor injection in use cases and repositories
+- [x] #13 Replace `Either<String, dynamic>` with typed `Failure` classes
+- [x] #14 Add auth session check in `SplashPage` (originally Firebase; rewritten for Supabase in #114)
+- [x] #15 Register `SongPlayerCubit` as lazy singleton in `service_locator`
+- [x] #16 Remove silent placeholder fallback from `SongServiceImpl` (rewritten for Supabase in #115)
+- [x] #17 Rebrand user-visible strings from "Spotify Clone" to "MuseAI"
 
 ### Backend tasks
 
-- [X] Initialise `backend/` directory with FastAPI scaffold, environment config, and local run documentation
-- [X] Add Firebase Admin integration for Auth, Firestore, and Storage in the backend service
-- [ ] Configure production Firebase Admin credentials and Storage bucket for non-dev environments
-- [ ] Confirm Flutter app can reach the backend health endpoint and continue connecting to Firebase project without errors
+- [x] #18 Initialise `backend/` directory *(superseded by #111 Supabase migration)*
+- [x] #19 Deploy initial security rules for users and songs *(superseded by #111)*
 
 ### Exit criteria
 
-- [ ] `flutter analyze` produces zero errors and zero warnings
+- [x] `flutter analyze` produces zero errors and zero warnings
 - [ ] App installs and runs on Android and iOS without crashes
 - [ ] Sign-up, sign-in, and sign-out all work end-to-end
 - [ ] Returning users land on home page without re-authenticating
-- [ ] All import paths use `package:museai/...`
+- [x] All import paths use `package:museai/...`
 
 ---
 
-## Milestone 1 — AI Generation Core (3 weeks)
+## Milestone 1.5 — Supabase Migration 🔄 (Flutter complete, Backend pending)
 
-**Goal:** A user can type a prompt, select mood/genre/BPM, tap Generate, and receive a playable AI-generated track within 60 seconds. This is the product's core value proposition.
+**Goal:** Replace Firebase with Supabase across the entire stack. Prerequisite for all further backend work.
 
 ### Flutter tasks
 
-- [ ] Add `GenerationEntity` and `GenerationModel` matching the Firestore schema in `backend_dev_guide.md`
-- [ ] Add `GenerationRepository` (abstract) and `GenerationRepositoryImpl` (reads/writes Firestore `generations` subcollection)
-- [ ] Add `GenerationFirebaseService` and `GenerationFirebaseServiceImpl`
-- [ ] Add use cases: `CreateGenerationUsecase`, `WatchGenerationUsecase`, `GetUserGenerationsUsecase`
-- [ ] Register all new classes in `service_locator.dart`
-- [ ] Add `StudioCubit` with states: `StudioIdle`, `StudioSubmitting`, `StudioProcessing`, `StudioCompleted`, `StudioFailed`
-- [ ] Build Studio page: prompt `TextField`, mood chips, genre chips, BPM slider, instrument multi-select, Generate button
-- [ ] Build generation progress widget: animated spinner, status text from Firestore stream, retry button, auto-navigate to player on completion
-- [ ] Extend `SongPlayerCubit.loadSong()` to accept a `GenerationEntity` in addition to `SongEntity`
-- [ ] Add `FirebaseConst.generations` and `FirebaseConst.playlists` constants
+- [x] #113 Replace Firebase packages with `supabase_flutter` in pubspec + `main.dart`
+- [x] #114 Rewrite `AuthFirebaseServiceImpl` for Supabase Auth + fix `SplashPage`
+- [x] #115 Rewrite `SongFirebaseServiceImpl` and `SongModel` for Supabase
+- [x] #116 Rewrite `GenerationModel` and `GenerationStubService` for Supabase
+- [x] #117 Replace `fake_cloud_firestore` / `firebase_auth_mocks` with Supabase test helpers
+- [ ] #20 Confirm Flutter app connects to Supabase project without errors
+- [ ] #109 Swap `GenerationStubService` for `GenerationSupabaseServiceImpl` when backend ready
 
 ### Backend tasks
 
-- [X] Implement FastAPI endpoints for generation create/list/get/update/delete
-- [X] Implement backend generation actions for retry and remix
-- [X] Implement background generation processing in FastAPI with a mock provider for end-to-end flow
-- [X] Implement storage upload pipeline for generated audio and cover assets with Firebase Storage or local dev fallback
-- [X] Persist generation documents under `generations/{uid}/tracks/{trackId}`
-- [ ] Replace the mock generator with real AI parameter mapping and provider integration with retries
-- [ ] Set `AI_MUSIC_API_KEY` and any vendor secrets via environment variables or a secret manager in production
-- [ ] Deploy Firestore security rules for `generations` subcollection if the Flutter client still reads or writes it directly
-- [ ] Deploy Storage rules for generated asset paths if the client accesses Storage directly
-- [ ] Add end-to-end API tests: create generation request → background job runs → completed document exposes valid `audioUrl`
+- [ ] #112 Set up Supabase project and run schema migrations
+- [ ] #118 Implement `on-generation-created` Supabase Edge Function
+- [ ] #119 End-to-end test: generation completes via Supabase within 60s
+
+### Exit criteria
+
+- [ ] Flutter app boots and authenticates against Supabase with no errors
+- [ ] `songs` table data loads on the home screen
+- [ ] Generation create → Supabase Edge Function fires → completed doc with valid `audio_url` within 60s
+
+---
+
+## Milestone 1 — AI Generation Core 🔄 (Flutter complete, unblocked by M1.5 backend)
+
+**Goal:** A user can type a prompt, select mood/genre/BPM, tap Generate, and receive a playable AI-generated track within 60 seconds. Flutter side is done; backend is shared with M1.5 and must complete first.
+
+### Flutter tasks
+
+- [x] #21 Add `GenerationEntity` and `GenerationModel`
+- [x] #22 Add `GenerationRepository` (abstract) and `GenerationRepositoryImpl`
+- [x] #23 Add `GenerationSupabaseService` and `GenerationSupabaseServiceImpl`
+- [x] #24 Add use cases: `CreateGenerationUsecase`, `WatchGenerationUsecase`, `GetUserGenerationsUsecase`
+- [x] #25 Register all generation classes in `service_locator.dart`
+- [x] #26 Add `StudioCubit` with `Idle / Submitting / Processing / Completed / Failed` states
+- [x] #27 Build Studio page UI
+- [x] #28 Build generation progress widget
+- [x] #29 Extend `SongPlayerCubit.loadSong()` to accept `GenerationEntity`
+- [x] #30 Add collection path constants (`generations`, `playlists`) to avoid raw strings
+
+### Backend tasks
+
+- [ ] #118 Implement `on-generation-created` Supabase Edge Function *(shared with M1.5)*
+- [ ] #119 End-to-end test: generation completes within 60s *(shared with M1.5)*
 
 ### Exit criteria
 
 - [ ] User can submit a generation request from the Studio page
-- [ ] UI shows `processing` spinner while the backend generation job runs
+- [ ] UI shows `processing` spinner while the Edge Function runs
 - [ ] On completion, the generated track auto-loads in the player and plays
 - [ ] On failure, a human-readable error message is shown with a retry button
 - [ ] Generation completes in under 90 seconds for a 30-second track on a production network
-- [ ] Firestore security rules prevent a user from reading another user's generations (verified manually)
-- [ ] FastAPI logs show no unhandled exceptions during generation processing
+- [ ] Supabase RLS prevents a user from reading another user's generations (verified manually)
 
 ---
 
-## Milestone 2 — Library and Playlists (2 weeks)
+## Milestone 2 — Library and Playlists
 
-**Goal:** Users can manage their generated tracks — browse their history, rename tracks, add to playlists, and delete.
+**Goal:** Users can manage their generated tracks — browse history, rename tracks, add to playlists, and delete.
 
 ### Flutter tasks
 
-- [ ] Build My Library page: `StreamBuilder` on `generations/{uid}/tracks`, sorted by `createdAt` descending, with swipe-to-delete and pull-to-refresh
-- [ ] Build track row widget: cover art, title (derived from prompt), mood/genre chips, relative date, duration
-- [ ] Build Playlist list page and Playlist detail page with reorderable track list
-- [ ] Add use cases: `GetPlaylistsUsecase`, `CreatePlaylistUsecase`, `AddTrackToPlaylistUsecase`, `DeletePlaylistUsecase`
-- [ ] Add `LibraryCubit` and `PlaylistCubit` with appropriate states
-- [ ] Add "Add to playlist" bottom sheet in the player and track row long-press menu
-- [ ] Implement track rename (update Firestore `prompt` field or add a separate `title` field)
-- [ ] Add bottom navigation bar: **Create** (Studio) | **Library** | **Discover** (home/catalogue)
-- [ ] Wire routing for all flows: Studio → progress → player, Library → player, Playlist → player
+- [ ] #40 Build My Library page
+- [ ] #41 Build track row widget
+- [ ] #42 Build Playlist list page and Playlist detail page
+- [ ] #43 Add playlist and library use cases
+- [ ] #44 Add `LibraryCubit` and `PlaylistCubit` with states
+- [ ] #45 Add "Add to playlist" bottom sheet
+- [ ] #46 Implement track rename
+- [ ] #47 Add bottom navigation bar: **Create** | **Library** | **Discover**
+- [ ] #48 Wire routing for all M2 flows
 
 ### Backend tasks
 
-- [X] Implement playlist CRUD endpoints in FastAPI
-- [X] Implement playlist track add/remove/reorder endpoints
-- [X] Ensure deleting a generation removes it from all user playlists
-- [ ] Deploy Firestore security rules for `playlists` subcollection if playlists remain client-accessible
-- [ ] Confirm Firestore indexes for `generations` queries (ordered by `createdAt`) and any playlist-related lookups
+- [ ] #121 Add Postgres indexes for `generations` and `playlists` queries
 
 ### Exit criteria
 
@@ -120,102 +128,90 @@ Backend note:
 - [ ] User can delete a track from the library (also removes from all playlists)
 - [ ] User can create, rename, and delete playlists
 - [ ] User can add and remove tracks from playlists
-- [ ] Empty states display correctly (first-time user with no tracks or playlists)
-- [ ] Navigation between Create / Library / Discover feels seamless with no navigation stack issues
+- [ ] Empty states display correctly for first-time users
+- [ ] Navigation between Create / Library / Discover feels seamless
 
 ---
 
-## Milestone 3 — Remix, Export, and Sharing (2 weeks)
+## Milestone 3 — Remix, Export, and Sharing
 
-**Goal:** Users can iterate on generated tracks (remix with modified params), download as MP3, and share to other apps.
+**Goal:** Users can iterate on generated tracks (remix), download as MP3, and share to other apps.
 
 ### Flutter tasks
 
-- [ ] Add **Remix** button on player page — navigates to Studio pre-filled with parent track's params, sets `parentId` on new generation
-- [ ] Implement MP3 download using `path_provider` + `dart:io` — save `audio.mp3` to device Downloads folder
-- [ ] Add download permission handling for Android (`READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE`) and iOS (`NSPhotoLibraryAddUsageDescription`)
-- [ ] Implement share using `share_plus` — share the audio file or a deep link
-- [ ] Add share and download buttons to both the player page and the track row context menu
-- [ ] Show download progress indicator and success/failure toast
-- [ ] Add `parentId` display in player ("Remixed from: [original prompt]") when applicable
+- [ ] #51 Add Remix button on player page
+- [ ] #52 Implement MP3 download to device
+- [ ] #53 Add download permission handling (Android + iOS)
+- [ ] #54 Implement share via `share_plus`
+- [ ] #55 Add share and download buttons to player and track row context menu
+- [ ] #56 Show `parentId` in player for remixed tracks
 
 ### Backend tasks
 
-- [X] Support remix generations with `parentId` through the same backend pipeline
-- [X] Generate long-lived signed URLs for stored assets when Firebase Storage is used
-- [ ] Replace mock WAV generation with provider-returned export format suitable for production download/sharing
-- [ ] Verify royalty-free export rights with the final AI music provider terms of service
+- [ ] #57 Verify remix generations go through the same pipeline
+- [ ] #58 Ensure `audio_url` signed URLs are long-lived via Supabase Storage
 
 ### Exit criteria
 
-- [ ] Remix flow creates a new generation doc with correct `parentId` and all pre-filled params
-- [ ] Tapping Download saves a valid `.mp3` file to the device that plays in the system media player
+- [ ] Remix flow creates a new generation doc with correct `parentId` and pre-filled params
+- [ ] Tapping Download saves a valid `.mp3` to the device
 - [ ] Tapping Share opens the native share sheet with the audio file attached
 - [ ] Download and share work on both Android and iOS
-- [ ] Exported files are royalty-free (verified with AI API terms of service)
 
 ---
 
-## Milestone 4 — Auth Completion and Onboarding (1 week)
+## Milestone 4 — Auth Completion and Onboarding
 
-**Goal:** Complete the authentication surface and first-run experience so new users are immediately productive.
+**Goal:** Complete the authentication surface and first-run experience.
 
 ### Flutter tasks
 
-- [ ] Add Google Sign-In (using `firebase_auth` + `google_sign_in` packages)
-- [ ] Add Apple Sign-In (required for App Store if Google Sign-In is offered)
-- [ ] Add password reset flow: email field → sends Firebase reset email → success state
-- [ ] Add profile / settings screen: display name, email, theme toggle, sign-out, privacy policy link, terms link
-- [ ] Revamp the Get Started / splash screens with MuseAI-specific copy and illustrations — remove all generic streaming app imagery
-- [ ] Add in-app Privacy Policy and Terms of Service screens (can be WebView pointing to hosted pages)
-- [ ] Add account deletion flow (required by App Store and Play Store policies)
+- [ ] #59 Add Google Sign-In
+- [ ] #60 Add Apple Sign-In
+- [ ] #61 Add password reset flow
+- [ ] #62 Add profile / settings screen
+- [ ] #63 Revamp Get Started / splash screens with MuseAI branding
+- [ ] #64 Add in-app Privacy Policy and Terms of Service screens
+- [ ] #65 Add account deletion flow
 
 ### Backend tasks
 
-- [X] Implement password reset link generation endpoint
-- [X] Implement profile bootstrap endpoint for authenticated users
-- [X] Implement account deletion endpoint: delete `generations/{uid}/**`, `playlists/{uid}/**`, generated assets, and the Auth user
-- [ ] Enable Google sign-in in Firebase Authentication console
-- [ ] Enable Apple sign-in in Firebase Authentication console
-- [ ] Configure Apple Sign-In service ID in Firebase (requires Apple Developer account)
-- [ ] Confirm user bootstrap flow works for email, Google, and Apple sign-ins
+- [ ] #66 Enable Google and Apple sign-in in Supabase Auth dashboard
+- [ ] #120 Implement account deletion Supabase Edge Function
 
 ### Exit criteria
 
 - [ ] New users can sign up with email, Google, or Apple
 - [ ] Existing users can sign in with any of the three methods
 - [ ] Password reset email is sent and received successfully
-- [ ] Account deletion removes all user data from Firestore and Storage within 60 seconds
-- [ ] First-run users see MuseAI-branded onboarding — no references to Spotify or generic streaming
+- [ ] Account deletion removes all user data within 60 seconds
+- [ ] First-run users see MuseAI-branded onboarding — no references to Spotify
 
 ---
 
-## Milestone 5 — Performance, Polish, and Accessibility (2 weeks)
+## Milestone 5 — Performance, Polish, and Accessibility
 
-**Goal:** The app feels fast, looks intentional, and is usable by people with disabilities. Addresses all non-functional requirements.
+**Goal:** The app feels fast, looks intentional, and is usable by people with disabilities.
 
 ### Flutter tasks
 
-- [ ] Add `shimmer` loading skeletons to Library and Discover screens (replace plain spinners)
-- [ ] Add `hive` or `isar` local cache for Library metadata — tracks load instantly on reopen, then sync from Firestore
-- [ ] Implement offline state detection and show a banner when the device is offline
-- [ ] Audit all `Semantics` labels on interactive elements for screen reader support
-- [ ] Ensure all tap targets are at least 48×48 dp
-- [ ] Verify colour contrast ratio meets WCAG AA (4.5:1) for all text — update `app_colors.dart` as needed
-- [ ] Apply consistent theming: update `app_theme.dart` with MuseAI-specific colours, chip styles, and player chrome
-- [ ] Audit and fix all `TODO` and `FIXME` comments in the codebase
-- [ ] Fix typo in `auth_firebase_service_impl.dart`: `"Not user found"` → `"No user found"`
-- [ ] Add `flutter_test` unit tests for all use cases
-- [ ] Add widget tests for Studio, Library, and Player pages
+- [ ] #68 Add shimmer loading skeletons to Library and Discover screens
+- [ ] #69 Add local cache for Library metadata (hive or isar)
+- [ ] #70 Implement offline state detection and banner
+- [ ] #71 Audit all `Semantics` labels for screen reader support
+- [ ] #72 Ensure all tap targets are at least 48×48 dp
+- [ ] #73 Verify and fix WCAG AA colour contrast (4.5:1)
+- [ ] #74 Apply consistent MuseAI theming (`app_theme.dart`)
+- [ ] #75 Fix typo: `'Not user found'` → `'No user found'`
+- [ ] #76 Add unit tests for all use cases
+- [ ] #77 Add widget tests for Studio, Library, and Player pages
 
 ### Backend tasks
 
-- [ ] Add Firestore indexes for all collection queries used by the app (verify no missing index warnings in logs)
-- [ ] Add API/service layer tests for FastAPI routes, generation pipeline transitions, and failure paths
-- [ ] Review and tighten Firestore and Storage security rules — run the Firebase Security Rules unit test suite where relevant
-- [ ] Add request logging, generation latency metrics, and error monitoring for the FastAPI service
-- [ ] Add abuse protection for public API traffic (rate limiting, proxy rules, or App Check-compatible validation strategy)
-- [ ] Set up backend error alerting and latency monitoring in the hosting platform / Google Cloud Monitoring
+- [ ] #122 Add Postgres indexes for all remaining collection queries
+- [ ] #123 Review and tighten Supabase RLS policies and Storage policies
+- [ ] #124 Set up logging and monitoring in Supabase Edge Functions
+- [ ] #125 Enforce Supabase RLS in production and audit anonymous access
 
 ### Exit criteria
 
@@ -223,43 +219,41 @@ Backend note:
 - [ ] All UI elements pass WCAG AA contrast check
 - [ ] Screen reader can navigate all primary flows without unlabelled elements
 - [ ] `flutter test` passes with > 70% code coverage on domain and data layers
-- [ ] Zero Firebase security rules test failures
-- [ ] Backend generation error rate < 1% over 48-hour period in staging
+- [ ] Zero Supabase RLS test failures
+- [ ] Edge Function error rate < 1% over a 48-hour period in staging
 
 ---
 
-## Milestone 6 — Pre-Launch Hardening (1 week)
+## Milestone 6 — Pre-Launch Hardening
 
 **Goal:** The app is ready for submission to the App Store and Play Store.
 
 ### Flutter tasks
 
-- [ ] Update `pubspec.yaml` version to `1.0.0+1` and ensure build number increments correctly in CI
-- [ ] Add `app_icon` for all required sizes (iOS and Android) — no placeholder icons
-- [ ] Add `splash_screen` matching brand colours
-- [ ] Configure Android `build.gradle` with correct `applicationId` (`com.museai.app` or similar)
-- [ ] Configure iOS `Info.plist` with correct bundle ID, usage descriptions for microphone (if any), and media library
-- [ ] Test on minimum supported OS versions: Android 9 (API 28) and iOS 15
-- [ ] Perform a full regression test of all milestone features on a physical device
-- [ ] Enable ProGuard / R8 obfuscation for Android release build
+- [ ] #83 Update `pubspec.yaml` version to `1.0.0+1`
+- [ ] #84 Add app icons for all required iOS and Android sizes
+- [ ] #85 Add splash screen matching brand colours
+- [ ] #86 Configure Android `build.gradle` with correct `applicationId`
+- [ ] #87 Configure iOS `Info.plist` with bundle ID and usage descriptions
+- [ ] #88 Test on minimum supported OS: Android 9 (API 28) and iOS 15
+- [ ] #89 Full regression test on physical device
+- [ ] #90 Enable ProGuard / R8 obfuscation for Android release build
 
 ### Backend tasks
 
-- [ ] Deploy FastAPI service to the chosen hosting platform (for example Cloud Run, Render, Railway, or Fly.io)
-- [ ] Ensure Firebase project/billing supports outbound AI provider calls and storage traffic
-- [ ] Set Firebase budget alert at a defined monthly spend limit
-- [ ] Set backend concurrency / instance limits to cap AI API spend
-- [ ] Review all secret values are stored securely — no plaintext secrets in committed config files
-- [ ] Finalise auth hardening for production clients
-- [ ] Perform a load test: simulate 50 concurrent generation requests and confirm all complete successfully
+- [ ] #126 Set Supabase usage alerts and monitor free tier limits
+- [ ] #127 Configure Edge Function concurrency and rate limits
+- [ ] #128 Load test: 50 concurrent generation requests via Supabase
+- [ ] #129 Verify Supabase production project is on correct plan and region
+- [ ] #130 Verify all secrets are stored in Supabase secrets and not hardcoded
 
 ### Exit criteria
 
-- [ ] App passes Android `bundle tool` validation and Google Play pre-launch report with no crashes
-- [ ] App passes Xcode archive and TestFlight upload with no provisioning or entitlement errors
+- [ ] App passes Android bundle tool validation with no crashes
+- [ ] App passes Xcode archive and TestFlight upload with no errors
 - [ ] Privacy Policy and Terms of Service URLs resolve and load correctly in-app
-- [ ] All third-party licences are declared in the app's About / Legal screen
-- [ ] AI music API terms of service permit royalty-free commercial use of generated tracks (confirm in writing)
+- [ ] All third-party licences declared in the About / Legal screen
+- [ ] AI music API terms of service permit royalty-free commercial use (confirmed in writing)
 
 ---
 
@@ -267,42 +261,40 @@ Backend note:
 
 **Goal:** Users can share generated tracks to an in-app public feed and discover tracks made by others.
 
-This milestone is deferred to after initial launch. Scope TBD based on user feedback.
+*Deferred to after initial launch. Scope TBD based on user feedback.*
 
 High-level scope:
-
-- Public `feed` Firestore collection with user-shared posts
+- Public `feed` table with user-shared posts
 - Feed page with infinite scroll
 - Like / comment on posts
 - Follow other users
-- Notifications via Firebase Cloud Messaging (FCM)
+- Push notifications
 
 ---
 
 ## Summary Timeline
 
-| Milestone                               | Duration            | Owner             |
-| --------------------------------------- | ------------------- | ----------------- |
-| 0 — Codebase Health                    | 1 week              | Flutter + Backend |
-| 1 — AI Generation Core                 | 3 weeks             | Flutter + Backend |
-| 2 — Library and Playlists              | 2 weeks             | Flutter + Backend |
-| 3 — Remix, Export, Sharing             | 2 weeks             | Flutter           |
-| 4 — Auth Completion and Onboarding     | 1 week              | Flutter + Backend |
-| 5 — Performance, Polish, Accessibility | 2 weeks             | Flutter + Backend |
-| 6 — Pre-Launch Hardening               | 1 week              | Flutter + Backend |
-| **Total to launch**               | **~12 weeks** |                   |
-| 7 — Social Feed (v1.1)                 | Post-launch         | Flutter + Backend |
+| Milestone | Duration | Owner | Status |
+|---|---|---|---|
+| 0 — Codebase Health | 1 week | Flutter + Backend | 🔄 Flutter done, 1 backend task open |
+| 1.5 — Supabase Migration | 2 weeks | Flutter + Backend | 🔄 Flutter done, Backend pending |
+| 1 — AI Generation Core | 3 weeks | Flutter + Backend | 🔄 Flutter done, Backend pending |
+| 2 — Library and Playlists | 2 weeks | Flutter + Backend | ⬜ Not started |
+| 3 — Remix, Export, Sharing | 2 weeks | Flutter | ⬜ Not started |
+| 4 — Auth Completion and Onboarding | 1 week | Flutter + Backend | ⬜ Not started |
+| 5 — Performance, Polish, Accessibility | 2 weeks | Flutter + Backend | ⬜ Not started |
+| 6 — Pre-Launch Hardening | 1 week | Flutter + Backend | ⬜ Not started |
+| **Total to launch** | **~14 weeks** | | |
+| 7 — Social Feed (v1.1) | Post-launch | Flutter + Backend | ⬜ Deferred |
 
 ---
 
 ## Definition of "Production Grade"
 
-An application is considered production grade when it meets all of the following:
-
-- **Functional:** All Milestone 1–4 exit criteria pass
-- **Reliable:** Backend generation error rate < 1%; app crash-free rate > 99.5% (measured in Firebase Crashlytics)
-- **Performant:** P95 generation latency < 90 seconds; UI response < 2 seconds for all screen loads
-- **Secure:** All data access enforced by Firestore/Storage security rules; App Check enabled; no plaintext secrets in any codebase
-- **Accessible:** WCAG AA contrast compliance; all interactive elements labelled for screen readers
-- **Compliant:** Privacy Policy and Terms of Service published; account deletion available; GDPR-compliant data handling; AI API royalty-free usage confirmed
-- **Submittable:** App Store and Play Store listing complete; passes review guidelines for both stores
+- **Functional:** All M1–M4 exit criteria pass
+- **Reliable:** Edge Function error rate < 1%; app crash-free rate > 99.5%
+- **Performant:** P95 generation latency < 90s; UI response < 2s for all screen loads
+- **Secure:** Supabase RLS enforced on all tables; no plaintext secrets in any codebase
+- **Accessible:** WCAG AA contrast; all interactive elements labelled for screen readers
+- **Compliant:** Privacy Policy + ToS published; account deletion available; GDPR-compliant
+- **Submittable:** App Store and Play Store listing complete; passes review guidelines
