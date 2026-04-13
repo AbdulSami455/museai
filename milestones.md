@@ -10,6 +10,11 @@
 
 Each milestone has a **goal** (what done looks like), a list of **tasks** split by who owns them (Flutter team vs. Backend), and **exit criteria** — the specific, verifiable conditions that must be true before moving to the next milestone. Do not advance until all exit criteria pass.
 
+Backend note:
+
+- The backend architecture is now **FastAPI + Firebase Admin + Firestore + Storage**, not Firebase Cloud Functions.
+- Wherever older tasks mention "Cloud Function", interpret that as the FastAPI generation pipeline or background job unless explicitly noted otherwise.
+
 ---
 
 ## Milestone 0 — Codebase Health (1 week)
@@ -28,9 +33,10 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
-- [ ] Initialise `backend/` directory with `firebase init` (Functions, Firestore, Storage)
-- [ ] Deploy initial Firestore security rules for `users` and `songs` collections
-- [ ] Confirm Flutter app connects to Firebase project without errors
+- [X] Initialise `backend/` directory with FastAPI scaffold, environment config, and local run documentation
+- [X] Add Firebase Admin integration for Auth, Firestore, and Storage in the backend service
+- [ ] Configure production Firebase Admin credentials and Storage bucket for non-dev environments
+- [ ] Confirm Flutter app can reach the backend health endpoint and continue connecting to Firebase project without errors
 
 ### Exit criteria
 
@@ -61,25 +67,26 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
-- [ ] Implement `on_generation_created` Cloud Function (Firestore `onCreate` trigger)
-- [ ] Implement `param_mapper.py` — maps mood/genre/BPM/instruments to AI API params
-- [ ] Implement `ai_client.py` — integrate chosen AI music generation API with retry logic
-- [ ] Implement `storage_uploader.py` — upload audio and cover art to Firebase Storage
-- [ ] Deploy Firestore security rules for `generations` subcollection (see `backend_dev_guide.md` §6)
-- [ ] Deploy Storage rules for `generations/` path
-- [ ] Set `AI_MUSIC_API_KEY` via Firebase Secret Manager
-- [ ] Configure function timeout to 540 seconds and memory to 512 MB
-- [ ] Test end-to-end: write test doc → function fires → `completed` doc with valid `audioUrl` within 60 seconds
+- [X] Implement FastAPI endpoints for generation create/list/get/update/delete
+- [X] Implement backend generation actions for retry and remix
+- [X] Implement background generation processing in FastAPI with a mock provider for end-to-end flow
+- [X] Implement storage upload pipeline for generated audio and cover assets with Firebase Storage or local dev fallback
+- [X] Persist generation documents under `generations/{uid}/tracks/{trackId}`
+- [ ] Replace the mock generator with real AI parameter mapping and provider integration with retries
+- [ ] Set `AI_MUSIC_API_KEY` and any vendor secrets via environment variables or a secret manager in production
+- [ ] Deploy Firestore security rules for `generations` subcollection if the Flutter client still reads or writes it directly
+- [ ] Deploy Storage rules for generated asset paths if the client accesses Storage directly
+- [ ] Add end-to-end API tests: create generation request → background job runs → completed document exposes valid `audioUrl`
 
 ### Exit criteria
 
 - [ ] User can submit a generation request from the Studio page
-- [ ] UI shows `processing` spinner while the Cloud Function runs
+- [ ] UI shows `processing` spinner while the backend generation job runs
 - [ ] On completion, the generated track auto-loads in the player and plays
 - [ ] On failure, a human-readable error message is shown with a retry button
 - [ ] Generation completes in under 90 seconds for a 30-second track on a production network
 - [ ] Firestore security rules prevent a user from reading another user's generations (verified manually)
-- [ ] Cloud Function logs show no unhandled exceptions
+- [ ] FastAPI logs show no unhandled exceptions during generation processing
 
 ---
 
@@ -101,8 +108,11 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
-- [ ] Deploy Firestore security rules for `playlists` subcollection
-- [ ] Confirm Firestore indexes for `generations` queries (ordered by `createdAt`) — add to `firestore.indexes.json` and deploy
+- [X] Implement playlist CRUD endpoints in FastAPI
+- [X] Implement playlist track add/remove/reorder endpoints
+- [X] Ensure deleting a generation removes it from all user playlists
+- [ ] Deploy Firestore security rules for `playlists` subcollection if playlists remain client-accessible
+- [ ] Confirm Firestore indexes for `generations` queries (ordered by `createdAt`) and any playlist-related lookups
 
 ### Exit criteria
 
@@ -131,8 +141,10 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
-- [ ] Verify that remix generations (with `parentId`) go through the same pipeline without changes — no backend changes expected for basic remix
-- [ ] Ensure `audioUrl` signed URLs are long-lived (10 years) so downloaded links do not expire
+- [X] Support remix generations with `parentId` through the same backend pipeline
+- [X] Generate long-lived signed URLs for stored assets when Firebase Storage is used
+- [ ] Replace mock WAV generation with provider-returned export format suitable for production download/sharing
+- [ ] Verify royalty-free export rights with the final AI music provider terms of service
 
 ### Exit criteria
 
@@ -160,11 +172,13 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
+- [X] Implement password reset link generation endpoint
+- [X] Implement profile bootstrap endpoint for authenticated users
+- [X] Implement account deletion endpoint: delete `generations/{uid}/**`, `playlists/{uid}/**`, generated assets, and the Auth user
 - [ ] Enable Google sign-in in Firebase Authentication console
 - [ ] Enable Apple sign-in in Firebase Authentication console
 - [ ] Configure Apple Sign-In service ID in Firebase (requires Apple Developer account)
-- [ ] Add Firestore security rule to allow newly created user doc from Google/Apple sign-in (same rule, different provider — no change needed if using `request.auth.uid`)
-- [ ] Implement account deletion Cloud Function: delete all `generations/{uid}/**` docs, `playlists/{uid}/**` docs, and `Storage/generations/{uid}/` objects, then delete the Auth user
+- [ ] Confirm user bootstrap flow works for email, Google, and Apple sign-ins
 
 ### Exit criteria
 
@@ -197,10 +211,11 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 ### Backend tasks
 
 - [ ] Add Firestore indexes for all collection queries used by the app (verify no missing index warnings in logs)
-- [ ] Enable Firebase App Check to prevent API abuse from non-app clients
-- [ ] Review and tighten Firestore and Storage security rules — run the Firebase Security Rules unit test suite
-- [ ] Set up Firebase Performance Monitoring hooks in Cloud Functions (log generation latency)
-- [ ] Set up Cloud Function error alerting via Google Cloud Monitoring (alert if error rate > 5%)
+- [ ] Add API/service layer tests for FastAPI routes, generation pipeline transitions, and failure paths
+- [ ] Review and tighten Firestore and Storage security rules — run the Firebase Security Rules unit test suite where relevant
+- [ ] Add request logging, generation latency metrics, and error monitoring for the FastAPI service
+- [ ] Add abuse protection for public API traffic (rate limiting, proxy rules, or App Check-compatible validation strategy)
+- [ ] Set up backend error alerting and latency monitoring in the hosting platform / Google Cloud Monitoring
 
 ### Exit criteria
 
@@ -209,7 +224,7 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 - [ ] Screen reader can navigate all primary flows without unlabelled elements
 - [ ] `flutter test` passes with > 70% code coverage on domain and data layers
 - [ ] Zero Firebase security rules test failures
-- [ ] Cloud Function error rate < 1% over 48-hour period in staging
+- [ ] Backend generation error rate < 1% over 48-hour period in staging
 
 ---
 
@@ -230,11 +245,12 @@ Each milestone has a **goal** (what done looks like), a list of **tasks** split 
 
 ### Backend tasks
 
-- [ ] Enable Firebase Blaze plan (required for Cloud Functions outbound network calls)
+- [ ] Deploy FastAPI service to the chosen hosting platform (for example Cloud Run, Render, Railway, or Fly.io)
+- [ ] Ensure Firebase project/billing supports outbound AI provider calls and storage traffic
 - [ ] Set Firebase budget alert at a defined monthly spend limit
-- [ ] Set Cloud Function concurrency and max-instances limits to cap AI API spend
-- [ ] Review all secret values are in Secret Manager — no plaintext secrets in any config files
-- [ ] Run Firebase App Check enforcement (switch from debug to enforce mode)
+- [ ] Set backend concurrency / instance limits to cap AI API spend
+- [ ] Review all secret values are stored securely — no plaintext secrets in committed config files
+- [ ] Finalise auth hardening for production clients
 - [ ] Perform a load test: simulate 50 concurrent generation requests and confirm all complete successfully
 
 ### Exit criteria
@@ -284,7 +300,7 @@ High-level scope:
 An application is considered production grade when it meets all of the following:
 
 - **Functional:** All Milestone 1–4 exit criteria pass
-- **Reliable:** Cloud Function error rate < 1%; app crash-free rate > 99.5% (measured in Firebase Crashlytics)
+- **Reliable:** Backend generation error rate < 1%; app crash-free rate > 99.5% (measured in Firebase Crashlytics)
 - **Performant:** P95 generation latency < 90 seconds; UI response < 2 seconds for all screen loads
 - **Secure:** All data access enforced by Firestore/Storage security rules; App Check enabled; no plaintext secrets in any codebase
 - **Accessible:** WCAG AA contrast compliance; all interactive elements labelled for screen readers
