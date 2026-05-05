@@ -21,7 +21,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 - [x] #11 Rename Dart package from `spotify_clone` to `museai`
 - [x] #12 Switch to constructor injection in use cases and repositories
 - [x] #13 Replace `Either<String, dynamic>` with typed `Failure` classes
-- [x] #14 Add auth session check in `SplashPage` (originally Firebase; rewritten for Supabase in #114)
+- [x] #14 Add auth session check in `SplashPage` (completed in the Supabase auth flow rewrite in #114)
 - [x] #15 Register `SongPlayerCubit` as lazy singleton in `service_locator`
 - [x] #16 Remove silent placeholder fallback from `SongServiceImpl` (rewritten for Supabase in #115)
 - [x] #17 Rebrand user-visible strings from "Spotify Clone" to "MuseAI"
@@ -43,17 +43,17 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ## Milestone 1.5 — Supabase Migration 🔄 (Flutter complete, Backend pending)
 
-**Goal:** Replace Firebase with Supabase across the entire stack. Prerequisite for all further backend work.
+**Goal:** Complete the Supabase migration across the entire stack. Prerequisite for all further backend work.
 
 ### Flutter tasks
 
-- [x] #113 Replace Firebase packages with `supabase_flutter` in pubspec + `main.dart`
-- [x] #114 Rewrite `AuthFirebaseServiceImpl` for Supabase Auth + fix `SplashPage`
-- [x] #115 Rewrite `SongFirebaseServiceImpl` and `SongModel` for Supabase
+- [x] #113 Finalise `supabase_flutter` setup in `pubspec.yaml` + `main.dart`
+- [x] #114 Rewrite the auth data source for Supabase Auth + fix `SplashPage`
+- [x] #115 Rewrite the song data source and `SongModel` for Supabase
 - [x] #116 Rewrite `GenerationModel` and `GenerationStubService` for Supabase
-- [x] #117 Replace `fake_cloud_firestore` / `firebase_auth_mocks` with Supabase test helpers
+- [x] #117 Replace legacy backend-specific test helpers with Supabase test helpers
 - [ ] #20 Confirm Flutter app connects to Supabase project without errors
-- [ ] #109 Swap `GenerationStubService` for `GenerationSupabaseServiceImpl` when backend ready
+- [ ] #109 Swap `GenerationStubService` for `SupabaseGenerationService` when backend ready
 
 ### Backend tasks
 

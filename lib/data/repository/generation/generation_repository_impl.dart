@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
-import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/data/source/generation/generation_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/repository/generation/generation_repository.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
 class GenerationRepositoryImpl implements GenerationRepository {
-  final GenerationFirebaseService _service;
+  final GenerationService _service;
 
   GenerationRepositoryImpl(this._service);
 

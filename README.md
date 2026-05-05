@@ -38,7 +38,7 @@ MuseAI removes technical barriers by using AI agents for composition and product
 - Flutter for Android and iOS with a shared codebase
 
 ### Backend
-- Firebase for authentication, cloud data, and storage
+- Supabase for authentication, Postgres data, and storage
 
 ### AI Integration
 - External AI music generation APIs (e.g., Suno-like services)
@@ -62,7 +62,7 @@ MuseAI removes technical barriers by using AI agents for composition and product
 ## Non-Functional Requirements
 1. Performance: generation within 10-15 seconds; UI response within 2 seconds in normal conditions
 2. Usability: first-time users can generate a track without tutorials
-3. Security: secure storage and Firebase rules-based access
+3. Security: secure storage and Supabase access controls
 4. Scalability: backend supports growth without major degradation
 5. Reliability: graceful handling of API failures with clear retry/error states
 

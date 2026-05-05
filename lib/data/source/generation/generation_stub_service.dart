@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:museai/data/models/generation/generation_model.dart';
-import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/data/source/generation/generation_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
-class GenerationStubService implements GenerationFirebaseService {
+class GenerationStubService implements GenerationService {
   final SupabaseClient _client;
 
   GenerationStubService({SupabaseClient? client})

@@ -19,7 +19,7 @@ from app.schemas import (
     GenerationUpdateRequest,
 )
 from app.security import CurrentUser
-from app.services.firestore_utils import clean_none, utcnow
+from app.services.utils import clean_none, utcnow
 from app.services.storage import create_signed_url, delete_file, upload_bytes
 from app.supabase import require_supabase_client
 

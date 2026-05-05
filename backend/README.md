@@ -16,7 +16,7 @@ This service provides a production-ready backend for the MuseAI Flutter app usin
 - Library CRUD for user generations
 - Remix, retry, rename, and public sharing controls
 - Playlist CRUD and track membership management
-- Account deletion that removes Firestore data and storage assets
+- Account deletion that removes user data and stored assets
 
 ## Table layout
 

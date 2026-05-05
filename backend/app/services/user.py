@@ -12,7 +12,7 @@ from app.schemas import (
     UserProfileResponse,
 )
 from app.security import CurrentUser
-from app.services.firestore_utils import clean_none, utcnow
+from app.services.utils import clean_none, utcnow
 from app.services.storage import delete_file
 from app.supabase import public_headers, require_supabase_client, service_headers
 

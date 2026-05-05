@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:museai/core/error/failures.dart';
-import 'package:museai/data/source/auth/auth_firebase_service.dart';
+import 'package:museai/data/source/auth/auth_service.dart';
 import 'package:museai/domain/entities/auth/user_entity.dart';
 
-class AuthFirebaseServiceImpl extends AuthFirebaseService {
+class SupabaseAuthService implements AuthService {
   final SupabaseClient _client;
 
-  AuthFirebaseServiceImpl({SupabaseClient? client})
+  SupabaseAuthService({SupabaseClient? client})
       : _client = client ?? Supabase.instance.client;
 
   @override

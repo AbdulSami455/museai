@@ -10,7 +10,7 @@ from app.schemas import (
     PlaylistUpdateRequest,
 )
 from app.security import CurrentUser
-from app.services.firestore_utils import clean_none, utcnow
+from app.services.utils import clean_none, utcnow
 from app.supabase import require_supabase_client
 
 

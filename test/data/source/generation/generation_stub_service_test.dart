@@ -1,14 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/data/source/generation/generation_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
-class MockGenerationFirebaseService extends Mock
-    implements GenerationFirebaseService {}
+class MockGenerationService extends Mock implements GenerationService {}
 
 void main() {
-  late MockGenerationFirebaseService mockService;
+  late MockGenerationService mockService;
 
   setUpAll(() {
     registerFallbackValue(const GenerationParams(
@@ -21,7 +20,7 @@ void main() {
   });
 
   setUp(() {
-    mockService = MockGenerationFirebaseService();
+    mockService = MockGenerationService();
   });
 
   const params = GenerationParams(

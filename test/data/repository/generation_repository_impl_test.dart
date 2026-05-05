@@ -3,25 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/data/repository/generation/generation_repository_impl.dart';
-import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/data/source/generation/generation_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
-class MockGenerationFirebaseService extends Mock
-    implements GenerationFirebaseService {}
+class MockGenerationService extends Mock implements GenerationService {}
 
 class FakeGenerationParams extends Fake implements GenerationParams {}
 
 void main() {
   late GenerationRepositoryImpl repository;
-  late MockGenerationFirebaseService mockService;
+  late MockGenerationService mockService;
 
   setUpAll(() {
     registerFallbackValue(FakeGenerationParams());
   });
 
   setUp(() {
-    mockService = MockGenerationFirebaseService();
+    mockService = MockGenerationService();
     repository = GenerationRepositoryImpl(mockService);
   });
 
@@ -73,7 +72,7 @@ void main() {
 
     test('returns Left(GenerationFailure) on exception', () async {
       when(() => mockService.getUserGenerations('uid1'))
-          .thenThrow(Exception('firestore error'));
+          .thenThrow(Exception('database error'));
 
       final result = await repository.getUserGenerations('uid1');
 

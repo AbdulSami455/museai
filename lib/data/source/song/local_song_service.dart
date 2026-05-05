@@ -1,11 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
-import 'package:museai/data/source/song/song_firebase_service.dart';
+import 'package:museai/data/source/song/song_service.dart';
 import 'package:museai/domain/entities/song/song_entity.dart';
 
-/// Assignment-3 branch: songs are hardcoded so the app works without a live
-/// Supabase backend. Switch back to [SongFirebaseServiceImpl] (Supabase) on main.
-class SongFirebaseServiceImpl extends SongFirebaseService {
+/// Temporary local catalogue so the app works without a live songs API.
+class LocalSongService implements SongService {
   @override
   Future<Either<Failure, List<SongEntity>>> getNewsSongs() async {
     final songs = [

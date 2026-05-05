@@ -6,7 +6,7 @@ Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: fastapi>=0.115.0
 Requires-Dist: uvicorn[standard]>=0.30.0
-Requires-Dist: firebase-admin>=6.5.0
+Requires-Dist: supabase
 Requires-Dist: pydantic-settings>=2.4.0
 Requires-Dist: httpx>=0.27.0
 Requires-Dist: python-multipart>=0.0.9
@@ -19,28 +19,28 @@ Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
 This service provides a production-ready backend for the MuseAI Flutter app using:
 
 - `FastAPI` for HTTP APIs
-- `Firebase Auth` for identity verification
-- `Cloud Firestore` for app data
-- `Firebase Storage` for generated audio and cover assets
+- `Supabase Auth` for identity verification
+- `Supabase Postgres` for app data
+- `Supabase Storage` for generated audio and cover assets
 
 ## Features
 
-- Firebase token verification with a local `dev:<uid>[:email]` fallback
+- Supabase bearer token verification with a local `dev:<uid>[:email]` fallback
 - User profile bootstrap and password-reset link generation
 - Song catalogue read APIs
 - AI track generation with background processing
 - Library CRUD for user generations
 - Remix, retry, rename, and public sharing controls
 - Playlist CRUD and track membership management
-- Account deletion that removes Firestore data and storage assets
+- Account deletion that removes user data and stored assets
 
-## Collection layout
+## Table layout
 
 ```text
-users/{uid}
-songs/{songId}
-generations/{uid}/tracks/{trackId}
-playlists/{uid}/lists/{playlistId}
+users
+songs
+generations
+playlists
 ```
 
 ## Quick start
@@ -66,4 +66,4 @@ Authorization: Bearer dev:user-123:user@example.com
 
 - `AI_PROVIDER_MODE=mock` generates a short WAV preview plus SVG cover art so the full flow works without an external AI vendor.
 - In production, replace the mock provider in `app/services/generation.py` with a real provider call and keep credentials in environment variables or Secret Manager.
-- The backend assumes the Flutter app will continue using Firebase Auth on-device and send the Firebase ID token to FastAPI.
+- The backend assumes the Flutter app will sign users in with Supabase Auth and send the Supabase access token to FastAPI.

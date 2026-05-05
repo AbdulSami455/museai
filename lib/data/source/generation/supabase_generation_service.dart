@@ -1,8 +1,8 @@
-import 'package:museai/data/source/generation/generation_firebase_service.dart';
+import 'package:museai/data/source/generation/generation_service.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 
-class GenerationFirebaseServiceImpl implements GenerationFirebaseService {
+class SupabaseGenerationService implements GenerationService {
   @override
   Future<String> createGeneration(String uid, GenerationParams params) {
     throw UnimplementedError(

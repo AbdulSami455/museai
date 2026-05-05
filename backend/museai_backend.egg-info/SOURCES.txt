@@ -4,16 +4,15 @@ app/__init__.py
 app/api.py
 app/config.py
 app/dependencies.py
-app/firebase.py
 app/main.py
 app/schemas.py
 app/security.py
 app/services/__init__.py
-app/services/firestore_utils.py
 app/services/generation.py
 app/services/playlist.py
 app/services/song.py
 app/services/storage.py
+app/services/utils.py
 app/services/user.py
 museai_backend.egg-info/PKG-INFO
 museai_backend.egg-info/SOURCES.txt
