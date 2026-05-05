@@ -38,6 +38,13 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+Seed demo songs into Supabase:
+
+```bash
+cd backend
+python scripts/seed_demo_data.py
+```
+
 ## Auth in local development
 
 If `ALLOW_INSECURE_DEV_TOKENS=true`, you can call authenticated routes with:
@@ -51,3 +58,4 @@ Authorization: Bearer dev:user-123:user@example.com
 - `AI_PROVIDER_MODE=mock` generates a short WAV preview plus SVG cover art so the full flow works without an external AI vendor.
 - In production, replace the mock provider in `app/services/generation.py` with a real provider call and keep credentials in environment variables or Secret Manager.
 - The backend assumes the Flutter app will sign users in with Supabase Auth and send the Supabase access token to FastAPI.
+- Optional branded verification emails can be sent through Brevo by setting `BREVO_API_KEY` and sender env vars.

@@ -12,76 +12,87 @@ class GetStartedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage(AppImages.getStartedBg), fit: BoxFit.fill),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AppImages.getStartedBg),
+            fit: BoxFit.cover,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: SvgPicture.asset(AppVectors.logo)),
-                const Spacer(),
-                const Text(
-                  'Create Music with AI',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Pick your mood, genre, tempo, and instruments. MuseAI will generate an original track you can play, save, remix, and share.',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.grey,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                PrimaryAppButton(
-                  onPressed: () {
-                    // Animation 3: SlideTransition — ChooseModePage slides up from the bottom.
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const ChooseModePage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          final tween = Tween(
-                            begin: const Offset(0.0, 1.0),
-                            end: Offset.zero,
-                          ).chain(CurveTween(curve: Curves.easeInOut));
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(height: 12),
+                      SvgPicture.asset(
+                        AppVectors.logo,
+                        width: 180,
+                      ),
+                      const SizedBox(height: 32),
+                      const Column(
+                        children: [
+                          Text(
+                            'Create Music with AI',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Pick your mood, genre, tempo, and instruments. MuseAI will generate an original track you can play, save, remix, and share.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      PrimaryAppButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) =>
+                                  const ChooseModePage(),
+                              transitionsBuilder:
+                                  (context, animation, secondaryAnimation, child) {
+                                final tween = Tween(
+                                  begin: const Offset(0.0, 1.0),
+                                  end: Offset.zero,
+                                ).chain(CurveTween(curve: Curves.easeInOut));
+                                return SlideTransition(
+                                  position: animation.drive(tween),
+                                  child: child,
+                                );
+                              },
+                              transitionDuration: const Duration(milliseconds: 500),
+                            ),
                           );
                         },
-                        transitionDuration: const Duration(milliseconds: 500),
+                        title: const Text(
+                          'Get Started',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
-                    );
-                  },
-                  title: const Text(
-                    'Get Started',
-                    style: TextStyle(color: Colors.white),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }

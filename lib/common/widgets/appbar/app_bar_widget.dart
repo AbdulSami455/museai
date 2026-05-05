@@ -4,7 +4,13 @@ import 'package:museai/common/helpers/is_dark_mode.dart';
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
   final Widget? title;
   final bool showBackButton;
-  const AppBarWidget({super.key, this.title,this.showBackButton = true});
+  final List<Widget>? actions;
+  const AppBarWidget({
+    super.key,
+    this.title,
+    this.showBackButton = true,
+    this.actions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +19,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      actions: actions,
       leading: !showBackButton? null:IconButton(
         onPressed: () {
           Navigator.pop(context);

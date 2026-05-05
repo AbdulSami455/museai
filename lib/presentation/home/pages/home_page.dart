@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:museai/presentation/auth/pages/auth_page.dart';
 import 'package:museai/presentation/home/widgets/home_tabs_widget.dart';
 import 'package:museai/presentation/studio/pages/studio_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../common/widgets/appbar/app_bar_widget.dart';
 import '../../../core/configs/assets/app_vectors.dart';
@@ -21,6 +23,20 @@ class HomePage extends StatelessWidget {
           height: 40,
           width: 40,
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const AuthPage()),
+                (route) => false,
+              );
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push(

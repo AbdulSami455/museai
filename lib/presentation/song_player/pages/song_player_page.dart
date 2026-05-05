@@ -140,15 +140,21 @@ class _SongPlayerPageState extends State<SongPlayerPage>
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Slider(
-                activeColor: AppColors.primaryColor,
-                value: sl<SongPlayerCubit>().songPosition.inSeconds.toDouble(),
-                min: 0.0,
-                max: sl<SongPlayerCubit>().songDuration.inSeconds.toDouble(),
-                onChanged: (value) {
-                  sl<SongPlayerCubit>().jumpTo(Duration(seconds: value.toInt()));
-                },
-              ),
+              Builder(builder: (_) {
+                final position = sl<SongPlayerCubit>().songPosition.inSeconds.toDouble();
+                final duration = sl<SongPlayerCubit>().songDuration.inSeconds.toDouble();
+                final safeMax = duration <= 0 ? 1.0 : duration;
+                final safeValue = position > safeMax ? safeMax : position;
+                return Slider(
+                  activeColor: AppColors.primaryColor,
+                  value: safeValue,
+                  min: 0.0,
+                  max: safeMax,
+                  onChanged: (value) {
+                    sl<SongPlayerCubit>().jumpTo(Duration(seconds: value.toInt()));
+                  },
+                );
+              }),
               const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

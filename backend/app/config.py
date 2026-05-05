@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     project_name: str = "MuseAI Backend"
     api_prefix: str = "/api/v1"
     app_base_url: str = "http://127.0.0.1:8000"
-    cors_allowed_origins: str = ""
+    cors_allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     supabase_url: str = ""
     supabase_service_role_key: str = ""
@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     supabase_storage_bucket: str = "museai-assets"
     supabase_password_reset_redirect_to: Optional[str] = None
     signed_asset_url_ttl_seconds: int = 3600
+    brevo_api_key: str = ""
+    brevo_sender_email: str = ""
+    brevo_sender_name: str = "MuseAI"
+    email_verification_redirect_to: Optional[str] = None
+    signup_verification_code_ttl_minutes: int = 15
+    signup_verification_resend_cooldown_seconds: int = 60
 
     allow_insecure_dev_tokens: bool = False
     ai_provider_mode: str = "mock"

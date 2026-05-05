@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:museai/domain/entities/generation/generation_entity.dart';
+import 'package:museai/domain/entities/song/song_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 import 'package:museai/presentation/studio/bloc/studio_cubit.dart';
 import 'package:museai/presentation/studio/bloc/studio_state.dart';
 import 'package:museai/presentation/studio/widgets/generation_progress_widget.dart';
+import 'package:museai/presentation/song_player/pages/song_player_page.dart';
 import 'package:museai/service_locator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StudioPage extends StatefulWidget {
   const StudioPage({super.key});
@@ -76,7 +80,23 @@ class _StudioPageState extends State<StudioPage> {
               onGenreChanged: (v) => setState(() => _selectedGenre = v!),
               onBpmChanged: (v) => setState(() => _bpm = v.round()),
               onSubmit: () {
-                const uid = 'stub-uid'; // TODO(#59): replace with real auth UID
+                final uid = Supabase.instance.client.auth.currentUser?.id;
+                if (uid == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please sign in before generating a track.'),
+                    ),
+                  );
+                  return;
+                }
+                if (_promptController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please describe the track you want to generate.'),
+                    ),
+                  );
+                  return;
+                }
                 context.read<StudioCubit>().submit(
                   GenerationParams(
                     uid: uid,
@@ -208,7 +228,7 @@ class _FormView extends StatelessWidget {
 }
 
 class _CompletedView extends StatefulWidget {
-  final dynamic generation; // GenerationEntity
+  final GenerationEntity generation;
   const _CompletedView({required this.generation});
 
   @override
@@ -256,13 +276,29 @@ class _CompletedViewState extends State<_CompletedView>
             ),
             const SizedBox(height: 24),
             Text(
-              widget.generation.title as String,
+              widget.generation.title,
               style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             const Text('Your track is ready!', style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SongPlayerPage(
+                      song: widget.generation,
+                      songsList: const <SongEntity>[],
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text('Play Track', style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () => context.read<StudioCubit>().retry(),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent),

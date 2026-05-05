@@ -6,6 +6,8 @@ from app.schemas import (
     AuthLoginRequest,
     AuthSignupRequest,
     AuthTokenResponse,
+    EmailVerificationRequest,
+    EmailVerificationResponse,
     GenerationCreateRequest,
     GenerationResponse,
     GenerationUpdateRequest,
@@ -17,6 +19,10 @@ from app.schemas import (
     PlaylistTrackMutationRequest,
     PlaylistUpdateRequest,
     ProfileBootstrapRequest,
+    SignupStartRequest,
+    SignupStartResponse,
+    SignupVerifyRequest,
+    SignupVerifyResponse,
     PublicGenerationResponse,
     SongResponse,
     UserProfileResponse,
@@ -67,6 +73,32 @@ def sign_up(request: Request, payload: AuthSignupRequest) -> AuthTokenResponse:
     return user_service().sign_up(payload)
 
 
+@router.post(
+    "/auth/signup/start",
+    response_model=SignupStartResponse,
+    tags=["auth"],
+)
+def start_sign_up(
+    request: Request,
+    payload: SignupStartRequest,
+) -> SignupStartResponse:
+    enforce_auth_rate_limit(request)
+    return user_service().start_signup_verification(payload)
+
+
+@router.post(
+    "/auth/signup/verify",
+    response_model=SignupVerifyResponse,
+    tags=["auth"],
+)
+def verify_sign_up(
+    request: Request,
+    payload: SignupVerifyRequest,
+) -> SignupVerifyResponse:
+    enforce_auth_rate_limit(request)
+    return user_service().verify_signup_code(payload)
+
+
 @router.post("/auth/login", response_model=AuthTokenResponse, tags=["auth"])
 def sign_in(request: Request, payload: AuthLoginRequest) -> AuthTokenResponse:
     enforce_auth_rate_limit(request)
@@ -96,6 +128,19 @@ def create_password_reset_link(
 ) -> PasswordResetLinkResponse:
     enforce_auth_rate_limit(request)
     return user_service().generate_password_reset_link(payload)
+
+
+@router.post(
+    "/auth/resend-verification",
+    response_model=EmailVerificationResponse,
+    tags=["auth"],
+)
+def resend_verification_email(
+    request: Request,
+    payload: EmailVerificationRequest,
+) -> EmailVerificationResponse:
+    enforce_auth_rate_limit(request)
+    return user_service().resend_verification_email(payload)
 
 
 @router.delete("/auth/account", status_code=status.HTTP_204_NO_CONTENT, tags=["auth"])

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:museai/core/configs/app_config.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:museai/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:museai/service_locator.dart';
@@ -12,6 +13,7 @@ import 'presentation/splash/pages/splash_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppConfig.validate();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorage.webStorageDirectory
@@ -19,8 +21,8 @@ void main() async {
   );
 
   await Supabase.initialize(
-    url: 'https://fatxsbalyeebltrzzape.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdHhzYmFseWVlYmx0cnp6YXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTQzNzksImV4cCI6MjA5MTA5MDM3OX0.6c096JGo7Qlo9Rkx0jpuQrlyoLW189JOtWT389fDTT0',
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
   );
 
   await initializeDependencies();

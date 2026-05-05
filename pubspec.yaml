@@ -41,6 +41,7 @@ dependencies:
   hydrated_bloc:
   path_provider:
   supabase_flutter: ^2.8.4
+  http: ^1.2.2
   equatable:
   get_it:
   dartz:

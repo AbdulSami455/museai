@@ -5,8 +5,8 @@ import 'package:museai/data/repository/song/song_repository_impl.dart';
 import 'package:museai/data/source/auth/auth_service.dart';
 import 'package:museai/data/source/auth/supabase_auth_service.dart';
 import 'package:museai/data/source/generation/generation_service.dart';
-import 'package:museai/data/source/generation/generation_stub_service.dart';
-import 'package:museai/data/source/song/local_song_service.dart';
+import 'package:museai/data/source/generation/supabase_generation_service.dart';
+import 'package:museai/data/source/song/backend_song_service.dart';
 import 'package:museai/data/source/song/song_service.dart';
 import 'package:museai/domain/repository/auth/auth_repository.dart';
 import 'package:museai/domain/repository/generation/generation_repository.dart';
@@ -29,7 +29,7 @@ Future<void> initializeDependencies() async {
     AuthRepositoryImpl(sl<AuthService>()),
   );
 
-  sl.registerSingleton<SongService>(LocalSongService());
+  sl.registerSingleton<SongService>(BackendSongService());
 
   sl.registerSingleton<SongRepository>(
     SongRepositoryImpl(sl<SongService>()),
@@ -42,7 +42,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<SongPlayerCubit>(() => SongPlayerCubit());
 
   // Generation — service, repository, use cases, cubit
-  sl.registerSingleton<GenerationService>(GenerationStubService());
+  sl.registerSingleton<GenerationService>(SupabaseGenerationService());
 
   sl.registerSingleton<GenerationRepository>(
     GenerationRepositoryImpl(sl<GenerationService>()),

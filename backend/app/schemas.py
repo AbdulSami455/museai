@@ -26,6 +26,26 @@ class AuthSignupRequest(BaseModel):
     full_name: Optional[str] = Field(default=None, max_length=120)
 
 
+class SignupStartRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=6, max_length=128)
+    full_name: Optional[str] = Field(default=None, max_length=120)
+
+
+class SignupStartResponse(BaseModel):
+    message: str
+    expires_in_seconds: int
+
+
+class SignupVerifyRequest(BaseModel):
+    email: str
+    code: str = Field(min_length=4, max_length=12)
+
+
+class SignupVerifyResponse(BaseModel):
+    message: str
+
+
 class AuthLoginRequest(BaseModel):
     email: str
     password: str = Field(min_length=6, max_length=128)
@@ -37,6 +57,15 @@ class PasswordResetLinkRequest(BaseModel):
 
 class PasswordResetLinkResponse(BaseModel):
     reset_link: str
+
+
+class EmailVerificationRequest(BaseModel):
+    email: str
+
+
+class EmailVerificationResponse(BaseModel):
+    message: str
+    verification_link: Optional[str] = None
 
 
 class AuthTokenResponse(BaseModel):

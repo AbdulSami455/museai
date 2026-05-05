@@ -62,10 +62,24 @@ create table if not exists public.playlists (
 create index if not exists playlists_uid_created_at_idx
   on public.playlists (uid, created_at desc);
 
+create table if not exists public.pending_signups (
+  email text primary key,
+  full_name text,
+  password text not null,
+  code_hash text not null,
+  expires_at timestamptz not null,
+  attempt_count integer not null default 0,
+  resend_count integer not null default 0,
+  last_sent_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
 alter table public.users enable row level security;
 alter table public.songs enable row level security;
 alter table public.generations enable row level security;
 alter table public.playlists enable row level security;
+alter table public.pending_signups enable row level security;
 
 drop policy if exists "users_select_own" on public.users;
 create policy "users_select_own"

@@ -15,7 +15,7 @@ class SongModel extends SongEntity {
       title: map['title'] as String?,
       artist: map['artist'] as String?,
       duration: map['duration'] as num?,
-      songUrl: map['song_url'] as String?,
+      songUrl: (map['song_url'] ?? map['audio_url']) as String?,
       coverUrl: map['cover_url'] as String?,
       releaseDate: map['release_date'] != null
           ? DateTime.parse(map['release_date'] as String)
@@ -28,7 +28,7 @@ class SongModel extends SongEntity {
       'title': titleNullable,
       'artist': artistNullable,
       'duration': duration,
-      'song_url': songUrl,
+      'audio_url': songUrl,
       'cover_url': coverUrl,
       'release_date': releaseDate?.toIso8601String(),
     };

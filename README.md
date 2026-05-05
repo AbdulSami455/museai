@@ -69,3 +69,13 @@ MuseAI removes technical barriers by using AI agents for composition and product
 ## Current Implementation Status
 The current codebase includes core app structure, authentication flow scaffolding, playback screens, and placeholder media data for local/demo usage.  
 Advanced AI generation, royalty-free export pipeline, and full social feed workflows are planned for incremental implementation.
+
+## Runtime Configuration
+
+Flutter no longer hardcodes backend or Supabase credentials. Run it with `dart-define` values:
+
+```bash
+flutter run --dart-define-from-file=flutter.env.example.json
+```
+
+For real usage, copy `flutter.env.example.json` to your own local config file and replace the sample values.

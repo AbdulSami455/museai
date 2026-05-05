@@ -30,9 +30,9 @@ class GenerationStubService implements GenerationService {
       await _client.from('generations').update({
         'status': 'completed',
         'audio_url':
-            'https://fatxsbalyeebltrzzape.supabase.co/storage/v1/object/public/museai-assets/stub-audio.mp3',
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
         'cover_url':
-            'https://fatxsbalyeebltrzzape.supabase.co/storage/v1/object/public/museai-assets/stub-cover.jpg',
+            'https://picsum.photos/seed/museai-stub-cover/600/600',
       }).eq('id', id);
     });
 

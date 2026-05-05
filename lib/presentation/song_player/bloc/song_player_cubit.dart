@@ -17,7 +17,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     });
 
     audioPlayer.durationStream.listen((duration) {
-      songDuration = duration!;
+      songDuration = duration ?? Duration.zero;
+      updateSongPlayer();
     });
   }
 
@@ -27,17 +28,18 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   Future<void> loadSong(Playable song) async {
     try {
-      await audioPlayer.setUrl(song.audioUrl);
-      audioPlayer.play();
-      AudioSource.uri(
-        Uri.parse(song.audioUrl),
-        tag: MediaItem(
-          id: '1',
-          album: song.artist,
-          title: song.title,
-          artUri: song.coverUrl != null ? Uri.parse(song.coverUrl!) : null,
+      await audioPlayer.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(song.audioUrl),
+          tag: MediaItem(
+            id: song.audioUrl,
+            album: song.artist,
+            title: song.title,
+            artUri: song.coverUrl != null ? Uri.parse(song.coverUrl!) : null,
+          ),
         ),
       );
+      audioPlayer.play();
       emit(SongPlayerLoaded());
     } catch (e) {
       emit(SongPlayerFailure());
@@ -46,7 +48,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   void playOrPauseSong() {
     if (audioPlayer.playing) {
-      audioPlayer.stop();
+      audioPlayer.pause();
     } else {
       audioPlayer.play();
     }

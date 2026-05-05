@@ -138,7 +138,7 @@ class NewsSongsWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                song.artist!,
+                song.artist ?? 'Unknown Artist',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

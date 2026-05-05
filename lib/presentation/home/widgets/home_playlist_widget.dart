@@ -77,7 +77,7 @@ class HomePlaylistWidget extends StatelessWidget {
                             height: 5,
                           ),
                           Text(
-                            song.artist!,
+                            song.artist ?? 'Unknown Artist',
                             style: const TextStyle(
                               fontSize: 12,
                             ),

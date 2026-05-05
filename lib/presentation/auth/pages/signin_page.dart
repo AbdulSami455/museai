@@ -9,6 +9,7 @@ import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/usecases/auth/signin_usecase.dart';
 import 'package:museai/presentation/auth/pages/signup_page.dart';
 import 'package:museai/presentation/auth/widgets/text_field_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../domain/entities/auth/user_entity.dart';
 import '../../../service_locator.dart';
@@ -90,16 +91,24 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _signinAction() async {
+    FocusScope.of(context).unfocus();
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email and password are required.')),
+      );
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 2));
     var result = await sl<SignInUsecase>().call(
       params: UserEntity(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       ),
     );
+    if (!mounted) return;
     result.fold((Failure l) {
       var snackbar = SnackBar(
         content: Text(l.message),
@@ -107,11 +116,20 @@ class _SignInPageState extends State<SignInPage> {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }, (_) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-          (route) => false);
+      if (Supabase.instance.client.auth.currentSession == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign in succeeded, but no active session was found.'),
+          ),
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+            (route) => false);
+      }
     });
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
