@@ -1,8 +1,8 @@
 # MuseAI — Production Milestone Plan
 
 > **Purpose:** A phased roadmap from current scaffolding to a production-grade, publicly releasable application.
-> **Updated:** 2026-04-13
-> **Current state:** Core app structure, Supabase auth, song catalogue playback, full generation domain layer (Flutter), Supabase migration complete on the Flutter side. Backend Supabase Edge Function and E2E test pending.
+> **Updated:** 2026-05-07
+> **Current state:** Core app structure, MuseAI branding, Supabase auth/session handling, song catalogue playback, Studio generation flow, FastAPI + Supabase backend APIs for auth/generations/playlists, schema + RLS definitions, and basic backend tests are in place. The main remaining gaps are live Supabase environment verification, production AI generation integration, library/playlists UI, export/share flows, and release hardening.
 
 ---
 
@@ -12,7 +12,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ---
 
-## Milestone 0 — Codebase Health ✅ (Flutter complete)
+## Milestone 0 — Codebase Health 🔄 (refactor complete, runtime validation pending)
 
 **Goal:** Fix foundational issues that will compound in cost if left until later. No new features — only stabilisation.
 
@@ -41,7 +41,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ---
 
-## Milestone 1.5 — Supabase Migration 🔄 (Flutter complete, Backend pending)
+## Milestone 1.5 — Supabase Migration 🔄 (Flutter complete, backend integration mostly in place)
 
 **Goal:** Complete the Supabase migration across the entire stack. Prerequisite for all further backend work.
 
@@ -53,25 +53,27 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 - [x] #116 Rewrite `GenerationModel` and `GenerationStubService` for Supabase
 - [x] #117 Replace legacy backend-specific test helpers with Supabase test helpers
 - [ ] #20 Confirm Flutter app connects to Supabase project without errors
-- [ ] #109 Swap `GenerationStubService` for `SupabaseGenerationService` when backend ready
+- [x] #109 Swap `GenerationStubService` for `SupabaseGenerationService`
 
 ### Backend tasks
 
-- [ ] #112 Set up Supabase project and run schema migrations
-- [ ] #118 Implement `on-generation-created` Supabase Edge Function
-- [ ] #119 End-to-end test: generation completes via Supabase within 60s
+- [x] Supabase-backed FastAPI routes exist for auth, songs, generations, and playlists
+- [x] Supabase schema, indexes, and RLS policies are defined in `backend/supabase/schema.sql`
+- [ ] Apply schema/migrations to the target Supabase project and verify from a live environment
+- [ ] Replace the mock backend generation worker with a production AI provider integration
+- [ ] End-to-end test: deployed generation flow completes via Supabase-backed backend within 60s
 
 ### Exit criteria
 
 - [ ] Flutter app boots and authenticates against Supabase with no errors
 - [ ] `songs` table data loads on the home screen
-- [ ] Generation create → Supabase Edge Function fires → completed doc with valid `audio_url` within 60s
+- [ ] Generation create → backend job runs → completed row with valid `audio_url` within 60s
 
 ---
 
-## Milestone 1 — AI Generation Core 🔄 (Flutter complete, unblocked by M1.5 backend)
+## Milestone 1 — AI Generation Core 🔄 (core flow implemented, production-grade validation pending)
 
-**Goal:** A user can type a prompt, select mood/genre/BPM, tap Generate, and receive a playable AI-generated track within 60 seconds. Flutter side is done; backend is shared with M1.5 and must complete first.
+**Goal:** A user can type a prompt, select mood/genre/BPM, tap Generate, and receive a playable AI-generated track within 60 seconds. The create/watch flow is implemented; the remaining work is production AI integration and end-to-end validation.
 
 ### Flutter tasks
 
@@ -88,13 +90,15 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ### Backend tasks
 
-- [ ] #118 Implement `on-generation-created` Supabase Edge Function *(shared with M1.5)*
-- [ ] #119 End-to-end test: generation completes within 60s *(shared with M1.5)*
+- [x] Generation create/list/get/retry/remix APIs are implemented in `backend/app/api.py`
+- [x] Background generation processing updates rows from `processing` to `completed` / `failed`
+- [ ] Replace mock WAV generation with the production AI provider
+- [ ] End-to-end test: generation completes within 60s in a deployed environment
 
 ### Exit criteria
 
-- [ ] User can submit a generation request from the Studio page
-- [ ] UI shows `processing` spinner while the Edge Function runs
+- [x] User can submit a generation request from the Studio page
+- [x] UI shows `processing` spinner while the backend job runs
 - [ ] On completion, the generated track auto-loads in the player and plays
 - [ ] On failure, a human-readable error message is shown with a retry button
 - [ ] Generation completes in under 90 seconds for a 30-second track on a production network
@@ -102,7 +106,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ---
 
-## Milestone 2 — Library and Playlists
+## Milestone 2 — Library and Playlists 🔄 (backend groundwork done, Flutter UI pending)
 
 **Goal:** Users can manage their generated tracks — browse history, rename tracks, add to playlists, and delete.
 
@@ -120,7 +124,9 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ### Backend tasks
 
-- [ ] #121 Add Postgres indexes for `generations` and `playlists` queries
+- [x] #121 Add Postgres indexes for `generations` and `playlists` queries
+- [x] Playlist CRUD and track membership APIs are implemented
+- [x] Generation deletion removes the track from all playlists
 
 ### Exit criteria
 
@@ -133,7 +139,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ---
 
-## Milestone 3 — Remix, Export, and Sharing
+## Milestone 3 — Remix, Export, and Sharing 🔄 (backend remix/share groundwork done)
 
 **Goal:** Users can iterate on generated tracks (remix), download as MP3, and share to other apps.
 
@@ -148,8 +154,8 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ### Backend tasks
 
-- [ ] #57 Verify remix generations go through the same pipeline
-- [ ] #58 Ensure `audio_url` signed URLs are long-lived via Supabase Storage
+- [x] #57 Remix generations reuse the same backend generation pipeline with `parent_id`
+- [x] #58 `audio_url` values are served as signed Supabase Storage URLs
 
 ### Exit criteria
 
@@ -160,7 +166,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 ---
 
-## Milestone 4 — Auth Completion and Onboarding
+## Milestone 4 — Auth Completion and Onboarding 🔄 (verification flow and branding partly done)
 
 **Goal:** Complete the authentication surface and first-run experience.
 
@@ -170,14 +176,14 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 - [ ] #60 Add Apple Sign-In
 - [ ] #61 Add password reset flow
 - [ ] #62 Add profile / settings screen
-- [ ] #63 Revamp Get Started / splash screens with MuseAI branding
+- [x] #63 Revamp Get Started / splash screens with MuseAI branding
 - [ ] #64 Add in-app Privacy Policy and Terms of Service screens
 - [ ] #65 Add account deletion flow
 
 ### Backend tasks
 
 - [ ] #66 Enable Google and Apple sign-in in Supabase Auth dashboard
-- [ ] #120 Implement account deletion Supabase Edge Function
+- [x] #120 Implement account deletion backend flow *(served via `/auth/account`)*
 
 ### Exit criteria
 
@@ -185,7 +191,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 - [ ] Existing users can sign in with any of the three methods
 - [ ] Password reset email is sent and received successfully
 - [ ] Account deletion removes all user data within 60 seconds
-- [ ] First-run users see MuseAI-branded onboarding — no references to Spotify
+- [x] First-run users see MuseAI-branded onboarding — no references to Spotify
 
 ---
 
@@ -210,7 +216,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 
 - [ ] #122 Add Postgres indexes for all remaining collection queries
 - [ ] #123 Review and tighten Supabase RLS policies and Storage policies
-- [ ] #124 Set up logging and monitoring in Supabase Edge Functions
+- [ ] #124 Set up logging and monitoring for backend generation jobs
 - [ ] #125 Enforce Supabase RLS in production and audit anonymous access
 
 ### Exit criteria
@@ -220,17 +226,17 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 - [ ] Screen reader can navigate all primary flows without unlabelled elements
 - [ ] `flutter test` passes with > 70% code coverage on domain and data layers
 - [ ] Zero Supabase RLS test failures
-- [ ] Edge Function error rate < 1% over a 48-hour period in staging
+- [ ] Backend generation job error rate < 1% over a 48-hour period in staging
 
 ---
 
-## Milestone 6 — Pre-Launch Hardening
+## Milestone 6 — Pre-Launch Hardening 🔄 (version bump done; release hardening pending)
 
 **Goal:** The app is ready for submission to the App Store and Play Store.
 
 ### Flutter tasks
 
-- [ ] #83 Update `pubspec.yaml` version to `1.0.0+1`
+- [x] #83 Update `pubspec.yaml` version to `1.0.0+1`
 - [ ] #84 Add app icons for all required iOS and Android sizes
 - [ ] #85 Add splash screen matching brand colours
 - [ ] #86 Configure Android `build.gradle` with correct `applicationId`
@@ -242,7 +248,7 @@ Each milestone has a **goal**, a list of **tasks** split by team (Flutter / Back
 ### Backend tasks
 
 - [ ] #126 Set Supabase usage alerts and monitor free tier limits
-- [ ] #127 Configure Edge Function concurrency and rate limits
+- [ ] #127 Configure backend worker concurrency and rate limits
 - [ ] #128 Load test: 50 concurrent generation requests via Supabase
 - [ ] #129 Verify Supabase production project is on correct plan and region
 - [ ] #130 Verify all secrets are stored in Supabase secrets and not hardcoded
@@ -276,14 +282,14 @@ High-level scope:
 
 | Milestone | Duration | Owner | Status |
 |---|---|---|---|
-| 0 — Codebase Health | 1 week | Flutter + Backend | 🔄 Flutter done, 1 backend task open |
-| 1.5 — Supabase Migration | 2 weeks | Flutter + Backend | 🔄 Flutter done, Backend pending |
-| 1 — AI Generation Core | 3 weeks | Flutter + Backend | 🔄 Flutter done, Backend pending |
-| 2 — Library and Playlists | 2 weeks | Flutter + Backend | ⬜ Not started |
-| 3 — Remix, Export, Sharing | 2 weeks | Flutter | ⬜ Not started |
-| 4 — Auth Completion and Onboarding | 1 week | Flutter + Backend | ⬜ Not started |
-| 5 — Performance, Polish, Accessibility | 2 weeks | Flutter + Backend | ⬜ Not started |
-| 6 — Pre-Launch Hardening | 1 week | Flutter + Backend | ⬜ Not started |
+| 0 — Codebase Health | 1 week | Flutter + Backend | 🔄 Refactor complete; device/auth runtime validation still open |
+| 1.5 — Supabase Migration | 2 weeks | Flutter + Backend | 🔄 Flutter complete; live Supabase verification and production backend path still open |
+| 1 — AI Generation Core | 3 weeks | Flutter + Backend | 🔄 Request/process/play flow exists; production AI integration and E2E validation still open |
+| 2 — Library and Playlists | 2 weeks | Flutter + Backend | 🔄 Backend APIs/indexes done; Flutter library/playlists work still open |
+| 3 — Remix, Export, Sharing | 2 weeks | Flutter | 🔄 Backend remix/public URL groundwork done; Flutter export/share UX still open |
+| 4 — Auth Completion and Onboarding | 1 week | Flutter + Backend | 🔄 Email verification and branding done; social sign-in, reset, settings, deletion UI still open |
+| 5 — Performance, Polish, Accessibility | 2 weeks | Flutter + Backend | ⬜ Mostly still open |
+| 6 — Pre-Launch Hardening | 1 week | Flutter + Backend | 🔄 Version bumped; release configuration and store-readiness still open |
 | **Total to launch** | **~14 weeks** | | |
 | 7 — Social Feed (v1.1) | Post-launch | Flutter + Backend | ⬜ Deferred |
 
@@ -292,7 +298,7 @@ High-level scope:
 ## Definition of "Production Grade"
 
 - **Functional:** All M1–M4 exit criteria pass
-- **Reliable:** Edge Function error rate < 1%; app crash-free rate > 99.5%
+- **Reliable:** Backend generation job error rate < 1%; app crash-free rate > 99.5%
 - **Performant:** P95 generation latency < 90s; UI response < 2s for all screen loads
 - **Secure:** Supabase RLS enforced on all tables; no plaintext secrets in any codebase
 - **Accessible:** WCAG AA contrast; all interactive elements labelled for screen readers
