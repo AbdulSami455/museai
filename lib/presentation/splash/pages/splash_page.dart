@@ -56,7 +56,6 @@ class _SplashPageState extends State<SplashPage> {
         ),
       );
     } catch (_) {
-      // Supabase not initialised (e.g. during tests); silently ignore.
     }
   }
 }
