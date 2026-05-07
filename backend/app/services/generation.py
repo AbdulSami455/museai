@@ -11,6 +11,7 @@ from typing import Optional
 from xml.sax.saxutils import escape
 
 import httpx
+from postgrest.exceptions import APIError
 
 from fastapi import BackgroundTasks, HTTPException, status
 
@@ -73,14 +74,18 @@ class GenerationService:
         parent_id: Optional[str] = None,
     ) -> GenerationResponse:
         generation_id = str(uuid.uuid4())
-        self.db.table("generations").insert(
-            self._build_generation_payload(
-                user,
-                payload,
-                generation_id=generation_id,
-                parent_id=parent_id,
-            )
-        ).execute()
+        try:
+            self.db.table("generations").insert(
+                self._build_generation_payload(
+                    user,
+                    payload,
+                    generation_id=generation_id,
+                    parent_id=parent_id,
+                )
+            ).execute()
+        except APIError as exc:
+            self._raise_if_missing_table(exc, "generations")
+            raise
         background_tasks.add_task(self.process_generation_job, user.uid, generation_id)
         return self.get_generation(user, generation_id)
 
@@ -126,13 +131,18 @@ class GenerationService:
         )
 
     def list_generations(self, user: CurrentUser) -> list[GenerationResponse]:
-        response = (
-            self.db.table("generations")
-            .select("*")
-            .eq("uid", user.uid)
-            .order("created_at", desc=True)
-            .execute()
-        )
+        try:
+            response = (
+                self.db.table("generations")
+                .select("*")
+                .eq("uid", user.uid)
+                .order("created_at", desc=True)
+                .execute()
+            )
+        except APIError as exc:
+            if self._is_missing_table_error(exc, "generations"):
+                return []
+            raise
         return [self._to_generation(row) for row in (response.data or [])]
 
     def get_generation(self, user: CurrentUser, generation_id: str) -> GenerationResponse:
@@ -161,9 +171,13 @@ class GenerationService:
                 "updated_at": utcnow().isoformat(),
             }
         )
-        self.db.table("generations").update(update_data).eq("id", generation_id).eq(
-            "uid", user.uid
-        ).execute()
+        try:
+            self.db.table("generations").update(update_data).eq("id", generation_id).eq(
+                "uid", user.uid
+            ).execute()
+        except APIError as exc:
+            self._raise_if_missing_table(exc, "generations")
+            raise
         return self.get_generation(user, generation_id)
 
     def delete_generation(self, user: CurrentUser, generation_id: str) -> None:
@@ -171,9 +185,15 @@ class GenerationService:
         delete_file(data.get("audio_storage_path"))
         delete_file(data.get("cover_storage_path"))
 
-        playlists = (
-            self.db.table("playlists").select("*").eq("uid", user.uid).execute().data or []
-        )
+        try:
+            playlists = (
+                self.db.table("playlists").select("*").eq("uid", user.uid).execute().data or []
+            )
+        except APIError as exc:
+            if self._is_missing_table_error(exc, "playlists"):
+                playlists = []
+            else:
+                raise
         for playlist in playlists:
             track_ids = list(playlist.get("track_ids", []))
             if generation_id in track_ids:
@@ -182,17 +202,27 @@ class GenerationService:
                     {"track_ids": track_ids, "updated_at": utcnow().isoformat()}
                 ).eq("id", playlist["id"]).eq("uid", user.uid).execute()
 
-        self.db.table("generations").delete().eq("id", generation_id).eq("uid", user.uid).execute()
+        try:
+            self.db.table("generations").delete().eq("id", generation_id).eq(
+                "uid", user.uid
+            ).execute()
+        except APIError as exc:
+            self._raise_if_missing_table(exc, "generations")
+            raise
 
     def get_public_generation(self, share_slug: str) -> GenerationResponse:
-        response = (
-            self.db.table("generations")
-            .select("*")
-            .eq("share_slug", share_slug)
-            .eq("is_public", True)
-            .limit(1)
-            .execute()
-        )
+        try:
+            response = (
+                self.db.table("generations")
+                .select("*")
+                .eq("share_slug", share_slug)
+                .eq("is_public", True)
+                .limit(1)
+                .execute()
+            )
+        except APIError as exc:
+            self._raise_if_missing_table(exc, "generations")
+            raise
         rows = response.data or []
         if not rows:
             raise HTTPException(
@@ -254,18 +284,37 @@ class GenerationService:
             ).eq("id", generation_id).eq("uid", uid).execute()
 
     def _ensure_exists(self, uid: str, generation_id: str) -> dict:
-        response = (
-            self.db.table("generations")
-            .select("*")
-            .eq("id", generation_id)
-            .eq("uid", uid)
-            .limit(1)
-            .execute()
-        )
+        try:
+            response = (
+                self.db.table("generations")
+                .select("*")
+                .eq("id", generation_id)
+                .eq("uid", uid)
+                .limit(1)
+                .execute()
+            )
+        except APIError as exc:
+            self._raise_if_missing_table(exc, "generations")
+            raise
         rows = response.data or []
         if not rows:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Generation not found")
         return rows[0]
+
+    @staticmethod
+    def _is_missing_table_error(exc: APIError, table_name: str) -> bool:
+        message = str(exc)
+        return exc.code == "PGRST205" and table_name in message and "schema cache" in message
+
+    def _raise_if_missing_table(self, exc: APIError, table_name: str) -> None:
+        if self._is_missing_table_error(exc, table_name):
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    f"Supabase table '{table_name}' is not available yet. "
+                    "Apply backend/supabase/schema.sql to your Supabase project first."
+                ),
+            ) from exc
 
     def _to_generation(self, data: dict) -> GenerationResponse:
         audio_url = data.get("audio_url")
