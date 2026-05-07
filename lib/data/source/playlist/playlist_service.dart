@@ -1,3 +1,5 @@
+// This service handles external or data operations for playlist features.
+
 import 'package:museai/domain/entities/playlist/playlist_entity.dart';
 
 abstract class PlaylistService {

@@ -1,3 +1,5 @@
+// This entity represents core business data for authentication.
+
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable {

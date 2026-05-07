@@ -1,3 +1,5 @@
+# This file loads backend settings from environment and defaults.
+
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional

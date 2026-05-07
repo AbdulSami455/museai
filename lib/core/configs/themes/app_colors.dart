@@ -1,3 +1,5 @@
+// This file keeps centralized color constants used across the app.
+
 import 'package:flutter/material.dart';
 
 class AppColors {

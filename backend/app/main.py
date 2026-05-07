@@ -1,3 +1,5 @@
+# This file creates the FastAPI app, middleware, and top-level routing setup.
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

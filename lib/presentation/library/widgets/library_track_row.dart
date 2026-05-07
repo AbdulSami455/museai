@@ -1,3 +1,5 @@
+// This file contains supporting logic for the library section.
+
 import 'package:flutter/material.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 

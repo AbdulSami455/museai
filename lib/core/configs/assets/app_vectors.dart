@@ -1,3 +1,5 @@
+// This file keeps static asset path constants for easier reuse.
+
 class AppVectors {
   static const basePath = 'assets/vectors/';
   static const format = '.svg';

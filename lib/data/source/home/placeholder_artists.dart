@@ -1,3 +1,5 @@
+// This file contains supporting logic for the home screen.
+
 class ArtistPlaceholder {
   final String name;
   final String genre;

@@ -1,3 +1,5 @@
+// This entity represents core business data for song browsing and playback.
+
 import 'package:equatable/equatable.dart';
 import 'package:museai/domain/entities/playable.dart';
 

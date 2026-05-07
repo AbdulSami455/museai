@@ -1,3 +1,5 @@
+// This file contains supporting logic for the library section.
+
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/entities/playlist/playlist_entity.dart';
 

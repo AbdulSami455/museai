@@ -1,3 +1,5 @@
+// This file contains supporting logic for the home screen.
+
 import 'package:museai/domain/entities/song/song_entity.dart';
 
 class PlaceholderPodcasts {

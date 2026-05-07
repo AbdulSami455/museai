@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 from datetime import datetime, timedelta, timezone
 
 from postgrest.exceptions import APIError

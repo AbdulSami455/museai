@@ -1,3 +1,5 @@
+// This page builds the UI for legal pages.
+
 import 'package:flutter/material.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {

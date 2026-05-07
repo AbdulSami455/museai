@@ -1,3 +1,5 @@
+// This widget renders a reusable piece of this module.
+
 import 'package:flutter/material.dart';
 import 'package:museai/common/helpers/is_dark_mode.dart';
 

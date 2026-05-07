@@ -1,3 +1,5 @@
+// This service handles external or data operations for music generation.
+
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/usecases/generation/generation_params.dart';
 

@@ -1,3 +1,5 @@
+// This service handles external or data operations for authentication.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/entities/auth/user_entity.dart';

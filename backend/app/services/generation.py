@@ -1,3 +1,5 @@
+# This service runs the generation pipeline and updates job status.
+
 from __future__ import annotations
 
 import io

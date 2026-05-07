@@ -1,3 +1,5 @@
+// This model maps raw data into app structures for playlist features.
+
 import 'package:museai/domain/entities/playlist/playlist_entity.dart';
 
 class PlaylistModel extends PlaylistEntity {

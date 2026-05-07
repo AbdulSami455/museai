@@ -1,3 +1,5 @@
+// This page builds the UI for the onboarding flow.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:museai/common/widgets/buttons/primary_app_button.dart';

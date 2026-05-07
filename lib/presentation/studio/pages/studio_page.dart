@@ -1,3 +1,5 @@
+// This page builds the UI for the studio flow.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';

@@ -1,3 +1,5 @@
+// This model maps raw data into app structures for music generation.
+
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 
 class GenerationModel extends GenerationEntity {

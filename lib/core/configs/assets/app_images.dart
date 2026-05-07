@@ -1,3 +1,5 @@
+// This file keeps static asset path constants for easier reuse.
+
 class AppImages {
   static const baseUrl = 'assets/images/';
 

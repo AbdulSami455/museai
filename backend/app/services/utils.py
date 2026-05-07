@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 from datetime import datetime, timezone
 from typing import Any
 

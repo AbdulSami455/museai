@@ -1,3 +1,5 @@
+// This file defines repository contracts for music generation.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';

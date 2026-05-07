@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 import json
 import hashlib
 import secrets

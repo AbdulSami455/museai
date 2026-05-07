@@ -1,3 +1,5 @@
+// This page builds the UI for authentication.
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

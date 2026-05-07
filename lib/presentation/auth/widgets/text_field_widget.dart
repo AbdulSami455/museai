@@ -1,3 +1,5 @@
+// This widget renders a reusable piece of authentication.
+
 import 'package:flutter/material.dart';
 import 'package:museai/common/helpers/is_dark_mode.dart';
 import 'package:museai/core/configs/themes/app_colors.dart';

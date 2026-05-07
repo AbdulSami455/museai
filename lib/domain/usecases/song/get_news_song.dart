@@ -1,3 +1,5 @@
+// This file contains supporting logic for song browsing and playback.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/core/usecase/usecase.dart';

@@ -1,3 +1,5 @@
+// This cubit manages state updates for the studio flow.
+
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';

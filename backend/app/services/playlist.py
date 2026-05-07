@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 import uuid
 
 from fastapi import HTTPException, status

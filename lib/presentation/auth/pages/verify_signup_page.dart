@@ -1,3 +1,5 @@
+// This page builds the UI for authentication.
+
 import 'dart:async';
 import 'dart:convert';
 

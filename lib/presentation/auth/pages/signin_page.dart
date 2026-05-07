@@ -1,3 +1,5 @@
+// This page builds the UI for authentication.
+
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:museai/common/widgets/appbar/app_bar_widget.dart';

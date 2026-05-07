@@ -1,3 +1,5 @@
+// This use case handles one focused action in authentication.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/core/usecase/usecase.dart';

@@ -1,3 +1,5 @@
+// This file contains supporting logic for this module.
+
 import 'package:flutter/material.dart';
 
 extension DarkMode on BuildContext {

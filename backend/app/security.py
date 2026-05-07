@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 from dataclasses import dataclass
 from typing import Optional
 

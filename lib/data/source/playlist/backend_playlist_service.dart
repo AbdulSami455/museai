@@ -1,3 +1,5 @@
+// This service handles external or data operations for playlist features.
+
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;

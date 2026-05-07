@@ -1,3 +1,5 @@
+// This widget renders a reusable piece of the studio flow.
+
 import 'package:flutter/material.dart';
 
 class GenerationProgressWidget extends StatelessWidget {

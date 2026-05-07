@@ -1,3 +1,5 @@
+// This file contains supporting logic for music generation.
+
 class GenerationParams {
   final String uid;
   final String prompt;

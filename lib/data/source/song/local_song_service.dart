@@ -1,3 +1,5 @@
+// This service handles external or data operations for song browsing and playback.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/data/source/song/song_service.dart';

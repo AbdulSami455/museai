@@ -1,3 +1,5 @@
+// This service handles external or data operations for music generation.
+
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:museai/data/models/generation/generation_model.dart';

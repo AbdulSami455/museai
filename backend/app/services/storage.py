@@ -1,3 +1,5 @@
+# This file provides local storage helpers for generated assets.
+
 from pathlib import Path
 from typing import Optional
 

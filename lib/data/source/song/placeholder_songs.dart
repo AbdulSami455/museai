@@ -1,3 +1,5 @@
+// This file contains supporting logic for song browsing and playback.
+
 import 'package:museai/domain/entities/song/song_entity.dart';
 
 class PlaceholderSongs {

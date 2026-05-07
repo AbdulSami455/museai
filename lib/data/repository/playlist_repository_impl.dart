@@ -1,3 +1,5 @@
+// This file implements repository behavior for playlist features.
+
 import 'package:dartz/dartz.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/data/source/playlist/playlist_service.dart';

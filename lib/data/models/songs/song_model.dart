@@ -1,3 +1,5 @@
+// This model maps raw data into app structures for song browsing and playback.
+
 import 'package:museai/domain/entities/song/song_entity.dart';
 
 class SongModel extends SongEntity {

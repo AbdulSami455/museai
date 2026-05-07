@@ -1,3 +1,5 @@
+// This page builds the UI for legal pages.
+
 import 'package:flutter/material.dart';
 
 class TermsOfServicePage extends StatelessWidget {

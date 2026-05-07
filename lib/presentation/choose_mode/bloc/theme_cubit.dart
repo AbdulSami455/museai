@@ -1,3 +1,5 @@
+// This cubit manages state updates for theme selection.
+
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 

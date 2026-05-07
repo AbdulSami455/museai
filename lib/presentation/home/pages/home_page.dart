@@ -1,3 +1,5 @@
+// This page builds the UI for the home screen.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:museai/core/configs/assets/app_vectors.dart';

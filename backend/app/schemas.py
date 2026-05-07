@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 from datetime import datetime
 from enum import Enum
 from typing import Optional

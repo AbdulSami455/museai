@@ -1,3 +1,5 @@
+// This widget renders a reusable piece of the home screen.
+
 import 'package:flutter/material.dart';
 import 'package:museai/data/source/home/placeholder_artists.dart';
 

@@ -1,3 +1,5 @@
+// This cubit manages state updates for the library section.
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/entities/playlist/playlist_entity.dart';

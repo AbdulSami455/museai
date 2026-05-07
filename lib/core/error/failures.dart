@@ -1,3 +1,5 @@
+// This file defines failure/error types used across app layers.
+
 import 'package:equatable/equatable.dart';
 
 abstract class Failure extends Equatable {

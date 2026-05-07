@@ -1,3 +1,5 @@
+// This file defines app theming and visual style configuration.
+
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';

@@ -1,3 +1,5 @@
+// This cubit manages state updates for the home screen.
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/usecases/song/get_news_song.dart';

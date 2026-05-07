@@ -1,3 +1,5 @@
+// This page builds the UI for the library section.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/common/widgets/appbar/app_bar_widget.dart';

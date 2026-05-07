@@ -1,3 +1,5 @@
+// This file bootstraps the Flutter app and starts the main widget tree.
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

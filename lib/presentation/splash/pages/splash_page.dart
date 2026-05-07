@@ -1,3 +1,5 @@
+// This page builds the UI for app startup.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

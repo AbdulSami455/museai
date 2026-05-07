@@ -1,3 +1,5 @@
+// This model maps raw data into app structures for authentication.
+
 // ignore_for_file: overridden_fields
 
 import 'package:museai/domain/entities/auth/user_entity.dart';

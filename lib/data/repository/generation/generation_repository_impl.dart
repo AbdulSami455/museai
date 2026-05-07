@@ -1,3 +1,5 @@
+// This file implements repository behavior for music generation.
+
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';

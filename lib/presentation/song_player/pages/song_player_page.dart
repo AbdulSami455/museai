@@ -1,3 +1,5 @@
+// This page builds the UI for song browsing and playback.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';

@@ -1,3 +1,5 @@
+// This file defines state objects used in the home screen.
+
 import 'package:museai/domain/entities/song/song_entity.dart';
 
 abstract class NewsSongState {}

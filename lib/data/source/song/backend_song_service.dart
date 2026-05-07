@@ -1,3 +1,5 @@
+// This service handles external or data operations for song browsing and playback.
+
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';

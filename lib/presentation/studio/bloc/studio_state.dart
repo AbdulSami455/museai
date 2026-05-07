@@ -1,3 +1,5 @@
+// This file defines state objects used in the studio flow.
+
 import 'package:equatable/equatable.dart';
 import 'package:museai/domain/entities/generation/generation_entity.dart';
 

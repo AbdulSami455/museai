@@ -1,3 +1,5 @@
+# This backend file contains supporting server logic.
+
 from typing import Optional
 
 from fastapi import Depends

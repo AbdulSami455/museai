@@ -1,3 +1,5 @@
+// This file registers dependencies and wires services for injection.
+
 import 'package:get_it/get_it.dart';
 import 'package:museai/data/repository/auth/auth_repository_impl.dart';
 import 'package:museai/data/repository/generation/generation_repository_impl.dart';

@@ -1,3 +1,5 @@
+// This entity represents core business data for playlist features.
+
 import 'package:equatable/equatable.dart';
 
 enum PlaylistVisibility { private, public }

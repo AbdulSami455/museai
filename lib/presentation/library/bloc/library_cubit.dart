@@ -1,3 +1,5 @@
+// This cubit manages state updates for the library section.
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/data/source/library/mock_library_data.dart';

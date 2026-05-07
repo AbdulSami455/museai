@@ -1,3 +1,5 @@
+# This file defines backend API routes and request handling.
+
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 
 from app.dependencies import get_current_user

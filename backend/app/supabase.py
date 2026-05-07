@@ -1,3 +1,5 @@
+# This file initializes and exposes Supabase client access.
+
 from functools import lru_cache
 from typing import Any
 

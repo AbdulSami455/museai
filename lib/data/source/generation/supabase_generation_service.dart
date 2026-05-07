@@ -1,3 +1,5 @@
+// This service handles external or data operations for music generation.
+
 import 'dart:async';
 import 'dart:convert';
 

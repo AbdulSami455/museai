@@ -1,1 +1,28 @@
-{}
+{
+  "asami.bese22seecs@seecs.edu.pk": {
+    "email": "asami.bese22seecs@seecs.edu.pk",
+    "full_name": "Muhammad Tauha Kashif",
+    "password": "password",
+    "code_hash": "fec9b7d95ca727a0a22025136c2e1b978f3058168f9199772ef983bf0d0f0ff3",
+    "expires_at": "2026-05-07T11:48:53.807239+00:00",
+    "attempt_count": 0,
+    "resend_count": 1,
+    "last_sent_at": "2026-05-07T11:33:53.807239+00:00",
+    "created_at": "2026-05-07T11:33:53.807239+00:00",
+    "updated_at": "2026-05-07T11:33:53.807239+00:00",
+    "debug_code": "583637"
+  },
+  "mtauha727@gmail.com": {
+    "email": "mtauha727@gmail.com",
+    "full_name": "Abdul Sami",
+    "password": "Secret@1234",
+    "code_hash": "ac10e7f67c96916c96d5bfa22fb859b95403ad13a83ea4c7d137fcbf87ff3b67",
+    "expires_at": "2026-05-07T12:01:10.284591+00:00",
+    "attempt_count": 0,
+    "resend_count": 1,
+    "last_sent_at": "2026-05-07T11:46:10.284591+00:00",
+    "created_at": "2026-05-07T11:46:10.284591+00:00",
+    "updated_at": "2026-05-07T11:46:10.284591+00:00",
+    "debug_code": "009050"
+  }
+}
