@@ -83,20 +83,6 @@ class _LibraryPageState extends State<LibraryPage>
                         ],
                       ),
                     ),
-                    if (state.usingMockData)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F766E),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: const Text(
-                          'Mock Supabase Data',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w700),
-                        ),
-                      ),
                   ],
                 ),
               ),
