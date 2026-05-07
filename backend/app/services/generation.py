@@ -8,6 +8,9 @@ import uuid
 import wave
 from datetime import datetime
 from typing import Optional
+from xml.sax.saxutils import escape
+
+import httpx
 
 from fastapi import BackgroundTasks, HTTPException, status
 
@@ -208,23 +211,26 @@ class GenerationService:
             if self.settings.ai_generation_delay_seconds > 0:
                 time.sleep(self.settings.ai_generation_delay_seconds)
 
-            if self.settings.ai_provider_mode != "mock":
-                raise RuntimeError(
-                    "Only mock generation is implemented. Replace process_generation_job "
-                    "with your vendor integration before production."
+            if self.settings.ai_provider_mode == "mock":
+                audio_bytes = self._build_mock_audio_bytes(
+                    bpm=int(data["bpm"]),
+                    duration_seconds=int(
+                        data.get("duration_seconds", self.settings.default_track_duration_seconds)
+                    ),
                 )
-
-            audio_bytes = self._build_mock_wav(
-                bpm=int(data["bpm"]),
-                duration_seconds=int(
-                    data.get("duration_seconds", self.settings.default_track_duration_seconds)
-                ),
-            )
+                audio_content_type = "audio/wav"
+            elif self.settings.ai_provider_mode == "elevenlabs":
+                audio_bytes, audio_content_type = self._generate_with_elevenlabs(data)
+            else:
+                raise RuntimeError(
+                    f"Unsupported AI provider mode: {self.settings.ai_provider_mode}"
+                )
             cover_bytes = self._build_cover_svg(data)
+            extension = self._audio_extension_for_content_type(audio_content_type)
 
-            audio_path = "generations/{}/{}.wav".format(uid, generation_id)
+            audio_path = "generations/{}/{}.{}".format(uid, generation_id, extension)
             cover_path = "generations/{}/{}.svg".format(uid, generation_id)
-            audio_url = upload_bytes(audio_path, audio_bytes, "audio/wav")
+            audio_url = upload_bytes(audio_path, audio_bytes, audio_content_type)
             cover_url = upload_bytes(cover_path, cover_bytes, "image/svg+xml")
 
             self.db.table("generations").update(
@@ -306,7 +312,7 @@ class GenerationService:
         return utcnow()
 
     @staticmethod
-    def _build_mock_wav(*, bpm: int, duration_seconds: int) -> bytes:
+    def _build_mock_audio_bytes(*, bpm: int, duration_seconds: int) -> bytes:
         sample_rate = 22050
         frequency = max(120, min(880, int(220 + (bpm - 40) * 2)))
         amplitude = 16000
@@ -327,11 +333,92 @@ class GenerationService:
 
         return frames.getvalue()
 
+    def _generate_with_elevenlabs(self, data: dict) -> tuple[bytes, str]:
+        if not self.settings.elevenlabs_api_key:
+            raise RuntimeError("ELEVENLABS_API_KEY is not configured")
+
+        duration_seconds = int(
+            data.get("duration_seconds", self.settings.default_track_duration_seconds)
+        )
+        request_body = {
+            "prompt": self._build_elevenlabs_prompt(data),
+            "music_length_ms": duration_seconds * 1000,
+            "model_id": self.settings.elevenlabs_music_model_id,
+            "force_instrumental": True,
+        }
+        params = {}
+        if self.settings.elevenlabs_output_format:
+            params["output_format"] = self.settings.elevenlabs_output_format
+
+        response = httpx.post(
+            f"{self.settings.elevenlabs_base_url.rstrip('/')}/v1/music",
+            headers={
+                "xi-api-key": self.settings.elevenlabs_api_key,
+                "Content-Type": "application/json",
+                "Accept": "*/*",
+            },
+            json=request_body,
+            params=params,
+            timeout=180.0,
+        )
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            detail = self._extract_vendor_error(response)
+            raise RuntimeError(f"ElevenLabs music generation failed: {detail}") from exc
+
+        content_type = response.headers.get("content-type", "audio/mpeg").split(";")[0].strip()
+        if not content_type.startswith("audio/"):
+            raise RuntimeError(
+                f"ElevenLabs returned unexpected content type: {content_type or 'unknown'}"
+            )
+        if not response.content:
+            raise RuntimeError("ElevenLabs returned an empty audio response")
+
+        return response.content, content_type
+
+    @staticmethod
+    def _build_elevenlabs_prompt(data: dict) -> str:
+        instruments = ", ".join(data.get("instruments") or [])
+        details = [
+            str(data.get("prompt", "")).strip(),
+            f"Genre: {data.get('genre', 'Unknown')}",
+            f"Mood: {data.get('mood', 'Unknown')}",
+            f"Tempo: {data.get('bpm', 120)} BPM",
+        ]
+        if instruments:
+            details.append(f"Featured instruments: {instruments}")
+        details.append("Create a polished, studio-quality instrumental track with a clear structure.")
+        return ". ".join(part for part in details if part)
+
+    @staticmethod
+    def _extract_vendor_error(response: httpx.Response) -> str:
+        try:
+            payload = response.json()
+        except ValueError:
+            return response.text.strip() or f"HTTP {response.status_code}"
+
+        if isinstance(payload, dict):
+            detail = payload.get("detail") or payload.get("message")
+            if isinstance(detail, str) and detail.strip():
+                return detail.strip()
+        return f"HTTP {response.status_code}"
+
+    @staticmethod
+    def _audio_extension_for_content_type(content_type: str) -> str:
+        normalized = content_type.lower()
+        if "wav" in normalized:
+            return "wav"
+        if "ogg" in normalized or "opus" in normalized:
+            return "ogg"
+        return "mp3"
+
     @staticmethod
     def _build_cover_svg(data: dict) -> bytes:
-        prompt = str(data.get("prompt", "MuseAI")).replace("&", "&amp;")
-        genre = str(data.get("genre", "Unknown")).replace("&", "&amp;")
-        mood = str(data.get("mood", "Unknown")).replace("&", "&amp;")
+        prompt = escape(str(data.get("prompt", "MuseAI")))
+        genre = escape(str(data.get("genre", "Unknown")))
+        mood = escape(str(data.get("mood", "Unknown")))
         svg = f"""
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>

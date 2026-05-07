@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     email_verification_redirect_to: Optional[str] = None
     signup_verification_code_ttl_minutes: int = 15
     signup_verification_resend_cooldown_seconds: int = 60
+    elevenlabs_api_key: str = ""
+    elevenlabs_base_url: str = "https://api.elevenlabs.io"
+    elevenlabs_music_model_id: str = "music_v1"
+    elevenlabs_output_format: str = ""
 
     allow_insecure_dev_tokens: bool = False
     ai_provider_mode: str = "mock"

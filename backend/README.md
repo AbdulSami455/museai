@@ -13,6 +13,7 @@ This service provides a production-ready backend for the MuseAI Flutter app usin
 - User profile bootstrap and password-reset link generation
 - Song catalogue read APIs
 - AI track generation with background processing
+- ElevenLabs music generation via `POST /v1/music`
 - Library CRUD for user generations
 - Remix, retry, rename, and public sharing controls
 - Playlist CRUD and track membership management
@@ -38,6 +39,13 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+Required music generation env vars:
+
+```text
+ELEVENLABS_API_KEY=your-elevenlabs-api-key
+AI_PROVIDER_MODE=elevenlabs
+```
+
 Seed demo songs into Supabase:
 
 ```bash
@@ -55,7 +63,7 @@ Authorization: Bearer dev:user-123:user@example.com
 
 ## Important notes
 
-- `AI_PROVIDER_MODE=mock` generates a short WAV preview plus SVG cover art so the full flow works without an external AI vendor.
-- In production, replace the mock provider in `app/services/generation.py` with a real provider call and keep credentials in environment variables or Secret Manager.
+- `AI_PROVIDER_MODE=elevenlabs` uses the ElevenLabs Music API and reads credentials from `backend/.env`.
+- `AI_PROVIDER_MODE=mock` is still available as an offline fallback and generates a short WAV preview plus SVG cover art.
 - The backend assumes the Flutter app will sign users in with Supabase Auth and send the Supabase access token to FastAPI.
 - Optional branded verification emails can be sent through Brevo by setting `BREVO_API_KEY` and sender env vars.

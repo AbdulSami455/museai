@@ -40,9 +40,11 @@ class StudioCubit extends Cubit<StudioState> {
   void _startWatching(String uid, String generationId) {
     _cancelActiveSubscription();
 
-    _timeoutTimer = Timer(const Duration(seconds: 90), () {
+    _timeoutTimer = Timer(const Duration(minutes: 3), () {
       _cancelActiveSubscription();
-      emit(const StudioFailed(message: 'Generation timed out. Please try again.'));
+      emit(const StudioFailed(
+        message: 'Generation is taking longer than expected. Please try again.',
+      ));
     });
 
     _generationSubscription = _watchGenerationUsecase(

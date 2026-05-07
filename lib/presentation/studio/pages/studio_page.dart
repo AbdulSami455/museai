@@ -60,8 +60,8 @@ class _StudioPageState extends State<StudioPage> {
             if (state is StudioProcessing || state is StudioSubmitting) {
               return GenerationProgressWidget(
                 message: state is StudioSubmitting
-                    ? 'Submitting your request...'
-                    : 'Generating your track...',
+                    ? 'Sending your prompt to the generation service...'
+                    : 'Composing your track with ElevenLabs. This can take up to a couple of minutes.',
               );
             }
 
