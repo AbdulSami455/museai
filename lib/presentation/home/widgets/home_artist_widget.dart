@@ -31,7 +31,7 @@ class HomeArtistWidget extends StatelessWidget {
                 'New Album',
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: context.isDarkMode? Colors.black:Colors.white,
+                  color: context.isDarkMode ? Colors.black : Colors.white,
                 ),
               ),
               Text(
@@ -39,7 +39,7 @@ class HomeArtistWidget extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: context.isDarkMode? Colors.black:Colors.white,
+                  color: context.isDarkMode ? Colors.black : Colors.white,
                 ),
               ),
               Text(
@@ -47,14 +47,14 @@ class HomeArtistWidget extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: context.isDarkMode? Colors.black:Colors.white,
+                  color: context.isDarkMode ? Colors.black : Colors.white,
                 ),
               ),
               Text(
                 'Billie Ellish',
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: context.isDarkMode? Colors.black:Colors.white,
+                  color: context.isDarkMode ? Colors.black : Colors.white,
                 ),
               ),
             ],

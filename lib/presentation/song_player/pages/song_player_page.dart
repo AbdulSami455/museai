@@ -1,19 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:museai/common/helpers/is_dark_mode.dart';
 import 'package:museai/common/widgets/appbar/app_bar_widget.dart';
 import 'package:museai/core/configs/themes/app_colors.dart';
+import 'package:museai/domain/entities/generation/generation_entity.dart';
 import 'package:museai/domain/entities/playable.dart';
 import 'package:museai/domain/entities/song/song_entity.dart';
 import 'package:museai/presentation/song_player/bloc/song_player_cubit.dart';
 import 'package:museai/presentation/song_player/bloc/song_player_state.dart';
+import 'package:museai/presentation/studio/pages/studio_page.dart';
 import 'package:museai/service_locator.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SongPlayerPage extends StatefulWidget {
   final List<SongEntity> songsList;
   final Playable song;
-  const SongPlayerPage({super.key, required this.song, required this.songsList});
+
+  const SongPlayerPage({
+    super.key,
+    required this.song,
+    required this.songsList,
+  });
 
   @override
   State<SongPlayerPage> createState() => _SongPlayerPageState();
@@ -21,8 +33,8 @@ class SongPlayerPage extends StatefulWidget {
 
 class _SongPlayerPageState extends State<SongPlayerPage>
     with SingleTickerProviderStateMixin {
-  // Animation 4: RotationTransition — play button rotates continuously while playing.
   late final AnimationController _rotationController;
+  bool _downloading = false;
 
   @override
   void initState() {
@@ -50,6 +62,10 @@ class _SongPlayerPageState extends State<SongPlayerPage>
 
   @override
   Widget build(BuildContext context) {
+    final generation = widget.song is GenerationEntity
+        ? widget.song as GenerationEntity
+        : null;
+
     return BlocProvider.value(
       value: sl<SongPlayerCubit>(),
       child: Scaffold(
@@ -70,10 +86,15 @@ class _SongPlayerPageState extends State<SongPlayerPage>
                     color: Colors.grey[900],
                     image: widget.song.coverUrl != null
                         ? DecorationImage(
-                            // Animation 5: Hero tag applied in NewsSongsWidget;
-                            // the container here is the destination.
                             image: NetworkImage(widget.song.coverUrl!),
                             fit: BoxFit.cover,
+                          )
+                        : null,
+                    gradient: widget.song.coverUrl == null
+                        ? const LinearGradient(
+                            colors: [Color(0xFF172554), Color(0xFF0F766E)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           )
                         : null,
                   ),
@@ -84,37 +105,88 @@ class _SongPlayerPageState extends State<SongPlayerPage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.song.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.song.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          widget.song.artist ?? '',
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                      ],
+                          const SizedBox(height: 5),
+                          Text(
+                            widget.song.artist ?? 'MuseAI Track',
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          if (generation?.parentId != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              'Remix of ${generation!.parentId}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withValues(alpha: 0.65),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                     Icon(
                       Icons.favorite_border_rounded,
                       color: context.isDarkMode
-                          ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
-                          : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
+                          ? AppColors.lightBackgroundColor
+                              .withValues(alpha: 0.5)
+                          : AppColors.darkBackgroundColor
+                              .withValues(alpha: 0.5),
                     ),
                   ],
                 ),
               ),
+              _actionBar(context, generation),
+              const SizedBox(height: 10),
               _songPlayerWidget(context),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _actionBar(BuildContext context, GenerationEntity? generation) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      alignment: WrapAlignment.center,
+      children: [
+        if (generation != null)
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => StudioPage(remixSource: generation),
+                ),
+              );
+            },
+            icon: const Icon(Icons.auto_awesome),
+            label: const Text('Remix'),
+          ),
+        OutlinedButton.icon(
+          onPressed: _downloading ? null : () => _downloadTrack(context),
+          icon: Icon(_downloading
+              ? Icons.downloading_rounded
+              : Icons.download_rounded),
+          label: Text(_downloading ? 'Downloading...' : 'Download'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => _shareTrack(context, generation),
+          icon: const Icon(Icons.share_outlined),
+          label: const Text('Share'),
+        ),
+      ],
     );
   }
 
@@ -140,21 +212,26 @@ class _SongPlayerPageState extends State<SongPlayerPage>
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Builder(builder: (_) {
-                final position = sl<SongPlayerCubit>().songPosition.inSeconds.toDouble();
-                final duration = sl<SongPlayerCubit>().songDuration.inSeconds.toDouble();
-                final safeMax = duration <= 0 ? 1.0 : duration;
-                final safeValue = position > safeMax ? safeMax : position;
-                return Slider(
-                  activeColor: AppColors.primaryColor,
-                  value: safeValue,
-                  min: 0.0,
-                  max: safeMax,
-                  onChanged: (value) {
-                    sl<SongPlayerCubit>().jumpTo(Duration(seconds: value.toInt()));
-                  },
-                );
-              }),
+              Builder(
+                builder: (_) {
+                  final position =
+                      sl<SongPlayerCubit>().songPosition.inSeconds.toDouble();
+                  final duration =
+                      sl<SongPlayerCubit>().songDuration.inSeconds.toDouble();
+                  final safeMax = duration <= 0 ? 1.0 : duration;
+                  final safeValue = position > safeMax ? safeMax : position;
+                  return Slider(
+                    activeColor: AppColors.primaryColor,
+                    value: safeValue,
+                    min: 0.0,
+                    max: safeMax,
+                    onChanged: (value) {
+                      sl<SongPlayerCubit>()
+                          .jumpTo(Duration(seconds: value.toInt()));
+                    },
+                  );
+                },
+              ),
               const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,8 +257,11 @@ class _SongPlayerPageState extends State<SongPlayerPage>
                           ),
                         );
                       },
-                      child: const Icon(Icons.skip_previous_rounded,
-                          size: 30, color: AppColors.grey),
+                      child: const Icon(
+                        Icons.skip_previous_rounded,
+                        size: 30,
+                        color: AppColors.grey,
+                      ),
                     )
                   else
                     const SizedBox(width: 30),
@@ -189,11 +269,9 @@ class _SongPlayerPageState extends State<SongPlayerPage>
                   GestureDetector(
                     onTap: () {
                       sl<SongPlayerCubit>().playOrPauseSong();
-                      // Trigger rebuild so rotation syncs immediately.
                       setState(() {});
                     },
                     child: RotationTransition(
-                      // Animation 4: play button icon rotates while song plays.
                       turns: _rotationController,
                       child: Container(
                         height: 60,
@@ -225,8 +303,11 @@ class _SongPlayerPageState extends State<SongPlayerPage>
                           ),
                         );
                       },
-                      child: const Icon(Icons.skip_next_rounded,
-                          size: 30, color: AppColors.grey),
+                      child: const Icon(
+                        Icons.skip_next_rounded,
+                        size: 30,
+                        color: AppColors.grey,
+                      ),
                     )
                   else
                     const SizedBox(width: 30),
@@ -250,22 +331,63 @@ class _SongPlayerPageState extends State<SongPlayerPage>
   }
 
   SongEntity _nextSong() {
-    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
-        '_nextSong() must only be called when song is SongEntity and songsList is non-empty');
     final index = _currentIndex();
     return widget.songsList[(index + 1) % widget.songsList.length];
   }
 
   SongEntity _prevSong() {
-    assert(widget.song is SongEntity && widget.songsList.isNotEmpty,
-        '_prevSong() must only be called when song is SongEntity and songsList is non-empty');
     final index = _currentIndex();
-    return widget.songsList[(index - 1 + widget.songsList.length) % widget.songsList.length];
+    return widget.songsList[
+        (index - 1 + widget.songsList.length) % widget.songsList.length];
   }
 
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _downloadTrack(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _downloading = true);
+    try {
+      final response = await http.get(Uri.parse(widget.song.audioUrl));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Download failed.');
+      }
+      final directory = await getApplicationDocumentsDirectory();
+      final safeTitle =
+          widget.song.title.replaceAll(RegExp(r'[^a-zA-Z0-9_-]+'), '_');
+      final file = File('${directory.path}/$safeTitle.mp3');
+      await file.writeAsBytes(response.bodyBytes);
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text('Saved to ${file.path}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
+  Future<void> _shareTrack(
+      BuildContext context, GenerationEntity? generation) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final shareValue = generation?.shareSlug ?? widget.song.audioUrl;
+    await Clipboard.setData(ClipboardData(text: shareValue));
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          generation?.shareSlug != null
+              ? 'Share slug copied: ${generation!.shareSlug}'
+              : 'Track URL copied to clipboard.',
+        ),
+      ),
+    );
   }
 }

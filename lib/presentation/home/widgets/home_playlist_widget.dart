@@ -39,8 +39,12 @@ class HomePlaylistWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 SongEntity song = songs[index];
                 return GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SongPlayerPage(song:song,songsList:songs)));
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                SongPlayerPage(song: song, songsList: songs)));
                   },
                   child: Row(
                     children: [
@@ -50,8 +54,10 @@ class HomePlaylistWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: context.isDarkMode
-                              ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
-                              : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
+                              ? AppColors.lightBackgroundColor
+                                  .withValues(alpha: 0.5)
+                              : AppColors.darkBackgroundColor
+                                  .withValues(alpha: 0.5),
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,
@@ -92,8 +98,10 @@ class HomePlaylistWidget extends StatelessWidget {
                       Icon(
                         Icons.favorite_rounded,
                         color: context.isDarkMode
-                            ? AppColors.lightBackgroundColor.withValues(alpha: 0.5)
-                            : AppColors.darkBackgroundColor.withValues(alpha: 0.5),
+                            ? AppColors.lightBackgroundColor
+                                .withValues(alpha: 0.5)
+                            : AppColors.darkBackgroundColor
+                                .withValues(alpha: 0.5),
                       ),
                     ],
                   ),

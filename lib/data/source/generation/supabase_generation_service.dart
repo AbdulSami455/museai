@@ -59,7 +59,8 @@ class SupabaseGenerationService implements GenerationService {
         }
 
         final response = await _httpClient.get(
-          Uri.parse('${AppConfig.backendBaseUrl}/api/v1/generations/$generationId'),
+          Uri.parse(
+              '${AppConfig.backendBaseUrl}/api/v1/generations/$generationId'),
           headers: {
             'Authorization': 'Bearer ${session.accessToken}',
             'Content-Type': 'application/json',
@@ -82,7 +83,8 @@ class SupabaseGenerationService implements GenerationService {
     }
 
     fetchGeneration();
-    poller = Timer.periodic(const Duration(seconds: 2), (_) => fetchGeneration());
+    poller =
+        Timer.periodic(const Duration(seconds: 2), (_) => fetchGeneration());
 
     controller.onCancel = () async {
       poller?.cancel();
@@ -115,6 +117,60 @@ class SupabaseGenerationService implements GenerationService {
     return payload
         .map((row) => GenerationModel.fromMap(row as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<GenerationEntity> updateGeneration(
+    String generationId, {
+    String? title,
+    String? prompt,
+    bool? isPublic,
+  }) async {
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      throw StateError('You must sign in before updating generations.');
+    }
+
+    final body = <String, dynamic>{};
+    if (title != null) body['title'] = title;
+    if (prompt != null) body['prompt'] = prompt;
+    if (isPublic != null) body['is_public'] = isPublic;
+
+    final response = await _httpClient.patch(
+      Uri.parse('${AppConfig.backendBaseUrl}/api/v1/generations/$generationId'),
+      headers: {
+        'Authorization': 'Bearer ${session.accessToken}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_extractErrorMessage(response.body));
+    }
+
+    final payload = jsonDecode(response.body) as Map<String, dynamic>;
+    return GenerationModel.fromMap(payload);
+  }
+
+  @override
+  Future<void> deleteGeneration(String generationId) async {
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      throw StateError('You must sign in before deleting generations.');
+    }
+
+    final response = await _httpClient.delete(
+      Uri.parse('${AppConfig.backendBaseUrl}/api/v1/generations/$generationId'),
+      headers: {
+        'Authorization': 'Bearer ${session.accessToken}',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_extractErrorMessage(response.body));
+    }
   }
 
   String _extractErrorMessage(String body) {

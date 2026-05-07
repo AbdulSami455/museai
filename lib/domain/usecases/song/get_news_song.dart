@@ -4,7 +4,8 @@ import 'package:museai/core/usecase/usecase.dart';
 import 'package:museai/domain/entities/song/song_entity.dart';
 import 'package:museai/domain/repository/song/song_repository.dart';
 
-class GetNewsSongUsecase implements Usecase<Either<Failure, List<SongEntity>>, dynamic> {
+class GetNewsSongUsecase
+    implements Usecase<Either<Failure, List<SongEntity>>, dynamic> {
   final SongRepository _repository;
   GetNewsSongUsecase(this._repository);
 

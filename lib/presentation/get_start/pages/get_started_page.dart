@@ -23,9 +23,11 @@ class GetStartedPage extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                  constraints:
+                      BoxConstraints(minHeight: constraints.maxHeight - 48),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -64,10 +66,11 @@ class GetStartedPage extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const ChooseModePage(),
-                              transitionsBuilder:
-                                  (context, animation, secondaryAnimation, child) {
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const ChooseModePage(),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
                                 final tween = Tween(
                                   begin: const Offset(0.0, 1.0),
                                   end: Offset.zero,
@@ -77,7 +80,8 @@ class GetStartedPage extends StatelessWidget {
                                   child: child,
                                 );
                               },
-                              transitionDuration: const Duration(milliseconds: 500),
+                              transitionDuration:
+                                  const Duration(milliseconds: 500),
                             ),
                           );
                         },

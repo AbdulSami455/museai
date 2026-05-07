@@ -1,0 +1,17 @@
+import 'package:dartz/dartz.dart';
+import 'package:museai/core/error/failures.dart';
+import 'package:museai/domain/entities/playlist/playlist_entity.dart';
+import 'package:museai/domain/repository/playlist/playlist_repository.dart';
+
+class RemoveTrackFromPlaylistUsecase {
+  final PlaylistRepository _repository;
+
+  RemoveTrackFromPlaylistUsecase(this._repository);
+
+  Future<Either<Failure, PlaylistEntity>> call(
+    String playlistId,
+    String trackId,
+  ) {
+    return _repository.removeTrackFromPlaylist(playlistId, trackId);
+  }
+}

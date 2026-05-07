@@ -147,7 +147,8 @@ class _VerifySignupPageState extends State<VerifySignupPage> {
     }
   }
 
-  Future<void> _completeSignInAfterVerification({String? fallbackMessage}) async {
+  Future<void> _completeSignInAfterVerification(
+      {String? fallbackMessage}) async {
     if (fallbackMessage != null) {
       _showMessage(fallbackMessage);
     }
@@ -202,7 +203,8 @@ class _VerifySignupPageState extends State<VerifySignupPage> {
     setState(() => _isResending = true);
     try {
       final response = await _httpClient.post(
-        Uri.parse('${AppConfig.backendBaseUrl}/api/v1/auth/resend-verification'),
+        Uri.parse(
+            '${AppConfig.backendBaseUrl}/api/v1/auth/resend-verification'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': widget.email}),
       );

@@ -100,6 +100,32 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                   height: 70,
                 ),
+                const SizedBox(height: 20),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Divider(color: Colors.white24),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('or sign up with'),
+                    ),
+                    Expanded(
+                      child: Divider(color: Colors.white24),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _SocialSignupButton(
+                        label: 'Google', icon: Icons.account_circle_outlined),
+                    _SocialSignupButton(
+                        label: 'Apple', icon: Icons.apple_rounded),
+                  ],
+                ),
               ],
             ),
           ),
@@ -114,7 +140,8 @@ class _SignUpPageState extends State<SignUpPage> {
         _emailController.text.trim().isEmpty ||
         _passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name, email, and password are required.')),
+        const SnackBar(
+            content: Text('Name, email, and password are required.')),
       );
       return;
     }
@@ -205,6 +232,31 @@ class _SignUpPageState extends State<SignUpPage> {
           )
         ],
       ),
+    );
+  }
+}
+
+class _SocialSignupButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+
+  const _SocialSignupButton({
+    required this.label,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  '$label sign-up UI is ready; provider setup is pending.')),
+        );
+      },
+      icon: Icon(icon),
+      label: Text(label),
     );
   }
 }

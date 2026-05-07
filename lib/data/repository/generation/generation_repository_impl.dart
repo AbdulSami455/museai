@@ -48,4 +48,34 @@ class GenerationRepositoryImpl implements GenerationRepository {
       return Left(GenerationFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, GenerationEntity>> updateGeneration(
+    String generationId, {
+    String? title,
+    String? prompt,
+    bool? isPublic,
+  }) async {
+    try {
+      final generation = await _service.updateGeneration(
+        generationId,
+        title: title,
+        prompt: prompt,
+        isPublic: isPublic,
+      );
+      return Right(generation);
+    } catch (e) {
+      return Left(GenerationFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteGeneration(String generationId) async {
+    try {
+      await _service.deleteGeneration(generationId);
+      return const Right(null);
+    } catch (e) {
+      return Left(GenerationFailure(message: e.toString()));
+    }
+  }
 }

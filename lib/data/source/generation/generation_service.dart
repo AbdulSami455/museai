@@ -5,4 +5,11 @@ abstract class GenerationService {
   Future<String> createGeneration(String uid, GenerationParams params);
   Stream<GenerationEntity> watchGeneration(String uid, String generationId);
   Future<List<GenerationEntity>> getUserGenerations(String uid);
+  Future<GenerationEntity> updateGeneration(
+    String generationId, {
+    String? title,
+    String? prompt,
+    bool? isPublic,
+  });
+  Future<void> deleteGeneration(String generationId);
 }

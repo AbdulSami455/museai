@@ -1,4 +1,4 @@
-class AppImages{
+class AppImages {
   static const baseUrl = 'assets/images/';
 
   static const getStartedBg = '${baseUrl}get_started_bg.png';

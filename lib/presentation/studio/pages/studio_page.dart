@@ -11,7 +11,14 @@ import 'package:museai/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StudioPage extends StatefulWidget {
-  const StudioPage({super.key});
+  final bool compactMode;
+  final GenerationEntity? remixSource;
+
+  const StudioPage({
+    super.key,
+    this.compactMode = false,
+    this.remixSource,
+  });
 
   @override
   State<StudioPage> createState() => _StudioPageState();
@@ -19,12 +26,36 @@ class StudioPage extends StatefulWidget {
 
 class _StudioPageState extends State<StudioPage> {
   final _promptController = TextEditingController();
-  String _selectedMood = 'Happy';
-  String _selectedGenre = 'Pop';
-  int _bpm = 120;
+  late String _selectedMood;
+  late String _selectedGenre;
+  late int _bpm;
 
-  static const _moods = ['Happy', 'Sad', 'Energetic', 'Calm', 'Romantic', 'Dark'];
-  static const _genres = ['Pop', 'Rock', 'Jazz', 'Classical', 'Hip-Hop', 'Electronic', 'Ambient'];
+  static const _moods = [
+    'Happy',
+    'Sad',
+    'Energetic',
+    'Calm',
+    'Romantic',
+    'Dark'
+  ];
+  static const _genres = [
+    'Pop',
+    'Rock',
+    'Jazz',
+    'Classical',
+    'Hip-Hop',
+    'Electronic',
+    'Ambient'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedMood = widget.remixSource?.mood ?? 'Happy';
+    _selectedGenre = widget.remixSource?.genre ?? 'Pop';
+    _bpm = widget.remixSource?.bpm ?? 120;
+    _promptController.text = widget.remixSource?.prompt ?? '';
+  }
 
   @override
   void dispose() {
@@ -34,16 +65,11 @@ class _StudioPageState extends State<StudioPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
+    final content = BlocProvider.value(
       value: sl<StudioCubit>(),
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: const Text('Studio', style: TextStyle(color: Colors.white)),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: BlocConsumer<StudioCubit, StudioState>(
+      child: Container(
+        color: Colors.black,
+        child: BlocConsumer<StudioCubit, StudioState>(
           listener: (context, state) {
             if (state is StudioCompleted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -70,6 +96,7 @@ class _StudioPageState extends State<StudioPage> {
             }
 
             return _FormView(
+              compactMode: widget.compactMode,
               promptController: _promptController,
               selectedMood: _selectedMood,
               selectedGenre: _selectedGenre,
@@ -84,7 +111,8 @@ class _StudioPageState extends State<StudioPage> {
                 if (uid == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please sign in before generating a track.'),
+                      content:
+                          Text('Please sign in before generating a track.'),
                     ),
                   );
                   return;
@@ -92,30 +120,49 @@ class _StudioPageState extends State<StudioPage> {
                 if (_promptController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please describe the track you want to generate.'),
+                      content: Text(
+                          'Please describe the track you want to generate.'),
                     ),
                   );
                   return;
                 }
                 context.read<StudioCubit>().submit(
-                  GenerationParams(
-                    uid: uid,
-                    prompt: _promptController.text.trim(),
-                    mood: _selectedMood,
-                    genre: _selectedGenre,
-                    bpm: _bpm,
-                  ),
-                );
+                      GenerationParams(
+                        uid: uid,
+                        prompt: _promptController.text.trim(),
+                        mood: _selectedMood,
+                        genre: _selectedGenre,
+                        bpm: _bpm,
+                      ),
+                    );
               },
             );
           },
         ),
       ),
     );
+
+    if (widget.compactMode) {
+      return content;
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(
+          widget.remixSource == null ? 'Studio' : 'Remix Track',
+          style: const TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: content,
+    );
   }
 }
 
 class _FormView extends StatelessWidget {
+  final bool compactMode;
   final TextEditingController promptController;
   final String selectedMood;
   final String selectedGenre;
@@ -128,6 +175,7 @@ class _FormView extends StatelessWidget {
   final VoidCallback onSubmit;
 
   const _FormView({
+    required this.compactMode,
     required this.promptController,
     required this.selectedMood,
     required this.selectedGenre,
@@ -147,7 +195,25 @@ class _FormView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Describe your track', style: TextStyle(color: Colors.white70, fontSize: 13)),
+          if (compactMode) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Shape your next AI track',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Tune the vibe, genre, and tempo. Generated tracks land in Library automatically.',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.72)),
+            ),
+            const SizedBox(height: 24),
+          ],
+          const Text('Describe your track',
+              style: TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 8),
           TextField(
             controller: promptController,
@@ -172,7 +238,9 @@ class _FormView extends StatelessWidget {
             dropdownColor: Colors.grey[900],
             style: const TextStyle(color: Colors.white),
             decoration: _dropdownDecoration(),
-            items: moods.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+            items: moods
+                .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                .toList(),
             onChanged: onMoodChanged,
           ),
           const SizedBox(height: 16),
@@ -183,7 +251,9 @@ class _FormView extends StatelessWidget {
             dropdownColor: Colors.grey[900],
             style: const TextStyle(color: Colors.white),
             decoration: _dropdownDecoration(),
-            items: genres.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+            items: genres
+                .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                .toList(),
             onChanged: onGenreChanged,
           ),
           const SizedBox(height: 16),
@@ -204,9 +274,11 @@ class _FormView extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurpleAccent,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Generate', style: TextStyle(fontSize: 16, color: Colors.white)),
+              child: const Text('Generate',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
         ],
@@ -218,13 +290,13 @@ class _FormView extends StatelessWidget {
       Text(text, style: const TextStyle(color: Colors.white70, fontSize: 13));
 
   InputDecoration _dropdownDecoration() => InputDecoration(
-    filled: true,
-    fillColor: Colors.white10,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide.none,
-    ),
-  );
+        filled: true,
+        fillColor: Colors.white10,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      );
 }
 
 class _CompletedView extends StatefulWidget {
@@ -277,11 +349,15 @@ class _CompletedViewState extends State<_CompletedView>
             const SizedBox(height: 24),
             Text(
               widget.generation.title,
-              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            const Text('Your track is ready!', style: TextStyle(color: Colors.white70)),
+            const Text('Your track is ready!',
+                style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
@@ -296,13 +372,16 @@ class _CompletedViewState extends State<_CompletedView>
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Play Track', style: TextStyle(color: Colors.white)),
+              child: const Text('Play Track',
+                  style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () => context.read<StudioCubit>().retry(),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent),
-              child: const Text('Create Another', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurpleAccent),
+              child: const Text('Create Another',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

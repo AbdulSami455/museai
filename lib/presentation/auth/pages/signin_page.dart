@@ -7,6 +7,7 @@ import 'package:museai/core/configs/assets/app_vectors.dart';
 import 'package:museai/core/configs/themes/app_colors.dart';
 import 'package:museai/core/error/failures.dart';
 import 'package:museai/domain/usecases/auth/signin_usecase.dart';
+import 'package:museai/presentation/auth/pages/password_reset_page.dart';
 import 'package:museai/presentation/auth/pages/signup_page.dart';
 import 'package:museai/presentation/auth/widgets/text_field_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -68,6 +69,20 @@ class _SignInPageState extends State<SignInPage> {
                   inputType: TextInputType.visiblePassword,
                   controller: _passwordController,
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PasswordResetPage(),
+                        ),
+                      );
+                    },
+                    child: const Text('Forgot password?'),
+                  ),
+                ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -81,6 +96,36 @@ class _SignInPageState extends State<SignInPage> {
                           style: TextStyle(color: Colors.white),
                         ),
                   height: 70,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Divider(
+                            color: Colors.white.withValues(alpha: 0.18))),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('or continue with'),
+                    ),
+                    Expanded(
+                        child: Divider(
+                            color: Colors.white.withValues(alpha: 0.18))),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _SocialStubButton(
+                      label: 'Google',
+                      icon: Icons.account_circle_outlined,
+                    ),
+                    _SocialStubButton(
+                      label: 'Apple',
+                      icon: Icons.apple_rounded,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -119,7 +164,8 @@ class _SignInPageState extends State<SignInPage> {
       if (Supabase.instance.client.auth.currentSession == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Sign in succeeded, but no active session was found.'),
+            content:
+                Text('Sign in succeeded, but no active session was found.'),
           ),
         );
       } else {
@@ -161,6 +207,31 @@ class _SignInPageState extends State<SignInPage> {
           )
         ],
       ),
+    );
+  }
+}
+
+class _SocialStubButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+
+  const _SocialStubButton({
+    required this.label,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  '$label sign-in UI is ready; provider setup is pending.')),
+        );
+      },
+      icon: Icon(icon),
+      label: Text(label),
     );
   }
 }

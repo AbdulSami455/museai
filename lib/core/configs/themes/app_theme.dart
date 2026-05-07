@@ -4,21 +4,18 @@ import 'app_colors.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
-    scaffoldBackgroundColor: AppColors.lightBackgroundColor,
-    primaryColor: AppColors.primaryColor,
-    brightness: Brightness.light,
-    fontFamily: 'Satoshi',
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        elevation: 0,
-        textStyle: const TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30)
-        )
-      )
-    )
-  );
+      scaffoldBackgroundColor: AppColors.lightBackgroundColor,
+      primaryColor: AppColors.primaryColor,
+      brightness: Brightness.light,
+      fontFamily: 'Satoshi',
+      elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              elevation: 0,
+              textStyle:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)))));
 
   static final darkTheme = ThemeData(
     scaffoldBackgroundColor: AppColors.darkBackgroundColor,
@@ -26,14 +23,12 @@ class AppTheme {
     brightness: Brightness.dark,
     fontFamily: 'Satoshi',
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        elevation: 0,
-        textStyle: const TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.white),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30)
-        )
-      )
-    ),
+        style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryColor,
+            elevation: 0,
+            textStyle: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30)))),
   );
 }

@@ -13,15 +13,19 @@ class GenerationStubService implements GenerationService {
 
   @override
   Future<String> createGeneration(String uid, GenerationParams params) async {
-    final response = await _client.from('generations').insert({
-      'uid': uid,
-      'prompt': params.prompt,
-      'mood': params.mood,
-      'genre': params.genre,
-      'bpm': params.bpm,
-      'status': 'processing',
-      'created_at': DateTime.now().toIso8601String(),
-    }).select('id').single();
+    final response = await _client
+        .from('generations')
+        .insert({
+          'uid': uid,
+          'prompt': params.prompt,
+          'mood': params.mood,
+          'genre': params.genre,
+          'bpm': params.bpm,
+          'status': 'processing',
+          'created_at': DateTime.now().toIso8601String(),
+        })
+        .select('id')
+        .single();
 
     final id = response['id'] as String;
 
@@ -31,8 +35,7 @@ class GenerationStubService implements GenerationService {
         'status': 'completed',
         'audio_url':
             'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
-        'cover_url':
-            'https://picsum.photos/seed/museai-stub-cover/600/600',
+        'cover_url': 'https://picsum.photos/seed/museai-stub-cover/600/600',
       }).eq('id', id);
     });
 
@@ -96,5 +99,30 @@ class GenerationStubService implements GenerationService {
     return (response as List)
         .map((row) => GenerationModel.fromMap(row as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<GenerationEntity> updateGeneration(
+    String generationId, {
+    String? title,
+    String? prompt,
+    bool? isPublic,
+  }) async {
+    final response = await _client
+        .from('generations')
+        .update({
+          if (title != null) 'title': title,
+          if (prompt != null) 'prompt': prompt,
+          if (isPublic != null) 'is_public': isPublic,
+        })
+        .eq('id', generationId)
+        .select()
+        .single();
+    return GenerationModel.fromMap(response);
+  }
+
+  @override
+  Future<void> deleteGeneration(String generationId) async {
+    await _client.from('generations').delete().eq('id', generationId);
   }
 }
