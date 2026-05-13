@@ -1,81 +1,206 @@
 # MuseAI
 
-MuseAI is a cross-platform mobile application that uses AI agents to generate original music in real time.  
-Users can select mood, genre, tempo, and instrumentation, then get a tailored track they can play, save, share, and remix.
+MuseAI is a cross-platform AI music app built with Flutter, FastAPI, and Supabase. It lets users sign in, browse a demo song catalogue, generate original tracks from prompt/mood/genre/BPM input, play tracks in-app, and manage generated music through library and playlist flows.
 
-## Target Users
-- General listeners who want personalized, mood-based music
-- Content creators (YouTubers, TikTokers, podcasters) needing royalty-free music
-- Students learning music theory and AI
-- Independent artists looking for AI-assisted composition ideas
-- Casual users who enjoy experimenting with AI creativity
+The repository contains the mobile client, backend API, Supabase database schema, seed data, and automated tests.
 
-## Problem Statement (Why)
-The current music ecosystem is split:
-- Streaming apps support consumption but not creativity
-- Production tools are powerful but hard to learn
-- Many AI music tools are web-first and not mobile-native
+## Project Goals
 
-### Current Issues
-- Creating original music typically requires advanced skills and expensive tooling
-- Content creators struggle to find suitable royalty-free tracks
-- Existing AI generation tools are often not optimized for mobile UX
-- Listeners have limited creative control in traditional streaming apps
-- No single mobile app combines generation, remixing, social sharing, and personal music library
+- Make AI-assisted music creation usable from a mobile-first interface.
+- Support prompt-driven generation with clear processing, success, and failure states.
+- Keep user data isolated through Supabase Auth, Postgres row-level security, and backend authorization.
+- Provide a foundation for playlists, remixing, sharing, export, social discovery, and store release.
 
-### Why MuseAI
-MuseAI removes technical barriers by using AI agents for composition and production, making music creation accessible to users regardless of musical background.
+## Current Implementation
 
-## Project Objectives
-1. Build a functional cross-platform app for fast AI track generation from mood/genre input.
-2. Integrate AI agents for multi-genre composition (pop, hip-hop, classical, lo-fi, electronic).
-3. Provide an intuitive UI usable by non-musicians.
-4. Enable royalty-free export for content creators.
-5. Add social features for sharing and discovery of generated music.
+The app currently includes:
 
-## Proposed Solution (How)
-### Platform
-- Flutter for Android and iOS with a shared codebase
+- Flutter app structure for Android, iOS, web, macOS, Linux, and Windows targets.
+- MuseAI branding, Satoshi fonts, theme switching, splash, onboarding, auth, home, studio, library, playlist, profile, legal, and player screens.
+- Supabase-backed authentication setup in Flutter.
+- FastAPI backend routes for auth, songs, generations, playlists, public sharing, and account deletion.
+- Generation flow that creates a backend job, polls status, and stores completed audio/cover assets.
+- AI provider modes:
+  - `mock`: offline WAV preview generation for local development.
+  - `elevenlabs`: ElevenLabs Music API integration when credentials are configured.
+- Supabase schema with tables, indexes, and RLS policies.
+- Flutter tests for Cubits, repositories, use cases, splash behavior, and generation services.
+- Backend pytest coverage for security and generation behavior.
 
-### Backend
-- Supabase for authentication, Postgres data, and storage
+Some production items remain open, including live Supabase validation, full production AI verification, export/download UI, social sign-in, release hardening, and store readiness. See [milestones.md](milestones.md).
 
-### AI Integration
-- External AI music generation APIs (e.g., Suno-like services)
-- Python-based AI agent orchestration for prompt optimization, mood mapping, and track parameter control
+## Architecture
 
-### Development Process
-- Agile sprints
-- Phases: UI/UX prototyping -> core Flutter features -> AI integration and testing
-- Version control with Git/GitHub
+```text
+Flutter app
+  presentation/  pages, widgets, Cubits, UI state
+  domain/        entities, repository contracts, use cases
+  data/          models, repository implementations, services
+  core/          theme, assets, app config, failures
 
-## Functional Requirements
-1. User registration/login (email-password and Google Sign-In)
-2. AI music generation from mood, genre, tempo, and instruments
-3. In-app playback (play/pause/seek/skip)
-4. Library management and playlist organization
-5. Remix controls (tempo, key, instrumentation) with regeneration
-6. Track sharing to external platforms and in-app feed
-7. Royalty-free MP3 export/download
-8. Mood and genre selection via presets or text input
+FastAPI backend
+  app/api.py       HTTP routes
+  app/services/   auth, users, songs, generations, playlists, storage
+  app/schemas.py  request/response contracts
+  app/security.py bearer token verification
+  supabase/       schema and seed data
 
-## Non-Functional Requirements
-1. Performance: generation within 10-15 seconds; UI response within 2 seconds in normal conditions
-2. Usability: first-time users can generate a track without tutorials
-3. Security: secure storage and Supabase access controls
-4. Scalability: backend supports growth without major degradation
-5. Reliability: graceful handling of API failures with clear retry/error states
+Supabase
+  Auth       user identity and access tokens
+  Postgres   users, songs, generations, playlists, pending_signups
+  Storage    generated audio and cover assets
+```
 
-## Current Implementation Status
-The current codebase includes core app structure, authentication flow scaffolding, playback screens, and placeholder media data for local/demo usage.  
-Advanced AI generation, royalty-free export pipeline, and full social feed workflows are planned for incremental implementation.
+The Flutter app authenticates with Supabase, sends the Supabase access token to FastAPI, and the backend verifies the token before reading or mutating user-owned rows.
+
+## Main User Flows
+
+1. **Startup and auth**
+   - `lib/main.dart` validates required Dart defines, initializes HydratedBloc and Supabase, registers dependencies, then opens `SplashPage`.
+   - Auth screens use Supabase-backed services and route signed-in users into the app.
+
+2. **Home and playback**
+   - Home loads songs through `BackendSongService`.
+   - The player uses `SongPlayerCubit` and `just_audio` to load either catalogue songs or generated tracks.
+
+3. **AI generation**
+   - Studio collects prompt, mood, genre, and BPM.
+   - `StudioCubit` calls `CreateGenerationUsecase`.
+   - `SupabaseGenerationService` posts to `/api/v1/generations`.
+   - FastAPI creates a `generations` row and runs the generation worker.
+   - Flutter polls `/api/v1/generations/{id}` until the status is `completed` or `failed`.
+
+4. **Library and playlists**
+   - Library and playlist Cubits use generation and playlist use cases.
+   - Backend playlist routes support create, update, delete, add track, remove track, and reorder.
+
+5. **Public sharing groundwork**
+   - Public generations can receive a `share_slug`.
+   - `/api/v1/public/generations/{share_slug}` returns public track data and owner details.
+
+## Repository Map
+
+| Path | Purpose |
+|---|---|
+| `lib/main.dart` | Flutter bootstrap and root `MaterialApp` |
+| `lib/service_locator.dart` | `get_it` dependency registration |
+| `lib/core/configs/app_config.dart` | Required runtime config keys |
+| `lib/presentation/` | Screens, widgets, and Cubit state management |
+| `lib/domain/` | Entities, use cases, and repository contracts |
+| `lib/data/` | Models, data sources, and repository implementations |
+| `backend/app/main.py` | FastAPI app setup |
+| `backend/app/api.py` | API route definitions |
+| `backend/app/services/` | Backend business logic |
+| `backend/supabase/schema.sql` | Database schema, indexes, and RLS policies |
+| `backend/supabase/seed.sql` | Demo seed data |
+| `test/` | Flutter unit and widget tests |
+| `backend/tests/` | Backend pytest suite |
+| `assets/` | Fonts, images, vectors, and branding assets |
 
 ## Runtime Configuration
 
-Flutter no longer hardcodes backend or Supabase credentials. Run it with `dart-define` values:
+Flutter requires these Dart defines:
 
-```bash
-flutter run --dart-define-from-file=flutter.env.example.json
+```json
+{
+  "SUPABASE_URL": "https://your-project.supabase.co",
+  "SUPABASE_ANON_KEY": "your-anon-key",
+  "BACKEND_BASE_URL": "http://127.0.0.1:8000"
+}
 ```
 
-For real usage, copy `flutter.env.example.json` to your own local config file and replace the sample values.
+Start from the example file:
+
+```bash
+cp flutter.env.example.json flutter.env.json
+```
+
+Then run:
+
+```bash
+flutter pub get
+flutter run --dart-define-from-file=flutter.env.json
+```
+
+Do not commit real secrets. The checked-in `flutter.env.example.json` contains placeholders only.
+
+## Backend Setup
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+cp .env.example .env
+uvicorn app.main:app --reload
+```
+
+Important backend environment values:
+
+```text
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_ANON_KEY=
+SUPABASE_STORAGE_BUCKET=museai-assets
+AI_PROVIDER_MODE=mock
+ELEVENLABS_API_KEY=
+ALLOW_INSECURE_DEV_TOKENS=false
+```
+
+Use `AI_PROVIDER_MODE=mock` for offline development. Use `AI_PROVIDER_MODE=elevenlabs` with `ELEVENLABS_API_KEY` for real music generation.
+
+Apply `backend/supabase/schema.sql` to the target Supabase project before using Supabase-backed routes. Seed demo data with:
+
+```bash
+cd backend
+python scripts/seed_demo_data.py
+```
+
+## API Overview
+
+The backend mounts routes under `/api/v1`.
+
+| Area | Routes |
+|---|---|
+| Health | `GET /health` |
+| Songs | `GET /songs` |
+| Auth | `GET /auth/me`, `POST /auth/signup`, `POST /auth/signup/start`, `POST /auth/signup/verify`, `POST /auth/login`, `POST /auth/bootstrap-profile`, `POST /auth/password-reset-link`, `POST /auth/resend-verification`, `DELETE /auth/account` |
+| Generations | `GET /generations`, `POST /generations`, `GET /generations/{id}`, `PATCH /generations/{id}`, `DELETE /generations/{id}`, `POST /generations/{id}/retry`, `POST /generations/{id}/remix` |
+| Public | `GET /public/generations/{share_slug}` |
+| Playlists | `GET /playlists`, `POST /playlists`, `GET /playlists/{id}`, `PATCH /playlists/{id}`, `DELETE /playlists/{id}`, `POST /playlists/{id}/tracks`, `DELETE /playlists/{id}/tracks/{track_id}`, `POST /playlists/{id}/reorder` |
+
+Authenticated routes expect:
+
+```text
+Authorization: Bearer <supabase-access-token>
+```
+
+When `ALLOW_INSECURE_DEV_TOKENS=true`, local development can use:
+
+```text
+Authorization: Bearer dev:user-123:user@example.com
+```
+
+## Tests
+
+Run Flutter tests:
+
+```bash
+flutter test
+```
+
+Run backend tests:
+
+```bash
+cd backend
+pytest tests
+```
+
+See [testing_strategy.md](testing_strategy.md) for the full verification plan and release gates.
+
+## Documentation
+
+- [backend/README.md](backend/README.md) explains the backend service, configuration, API behavior, and Supabase requirements.
+- [testing_strategy.md](testing_strategy.md) explains the test pyramid, commands, and milestone coverage expectations.
+- [milestones.md](milestones.md) tracks production readiness across Flutter, backend, Supabase, AI generation, library, sharing, auth, accessibility, and release work.
+

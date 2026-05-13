@@ -1,5 +1,20 @@
-# Launch Screen Assets
+# MuseAI iOS Launch Image Assets
 
-You can customize the launch screen with your own desired assets by replacing the image files in this directory.
+This folder contains the image set used by the iOS launch screen for the Flutter app.
 
-You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
+MuseAI itself is documented at the repository root in `README.md`. The launch images here are only the native iOS startup assets shown before Flutter finishes rendering the branded splash/onboarding flow.
+
+## Files
+
+- `LaunchImage.png`
+- `LaunchImage@2x.png`
+- `LaunchImage@3x.png`
+- `Contents.json`
+
+To update the launch artwork, replace the PNG files with matching 1x, 2x, and 3x assets or edit them through Xcode:
+
+```bash
+open ios/Runner.xcworkspace
+```
+
+Then select `Runner/Assets.xcassets/LaunchImage.imageset`.
